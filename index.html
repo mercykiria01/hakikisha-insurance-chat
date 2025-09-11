@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hakikisha Insurance - Protect What Matters Most</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-emoji">👌</span>
+                <span class="logo-title">Hakikisha Insurance</span>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#services">Insurance</a></li>
+                    <li><a href="#claims">Claims</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="cta-buttons">
+                <a href="#quote" class="btn-secondary">Get Quote</a>
+                <a href="login.html" class="btn-primary"> Login</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="floating-elements">
+            <div class="floating-icon">🏠</div>
+            <div class="floating-icon">🚗</div>
+            <div class="floating-icon">❤️</div>
+            <div class="floating-icon">🏢</div>
+        </div>
+        
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Protect What Matters Most</h1>
+                <p class="hero-subtitle">
+                    Comprehensive insurance coverage tailored to your needs. From auto to home, life to business - we've got you covered with affordable premiums and exceptional service.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#quote" class="btn-primary">Get Free Quote</a>
+                    <a href="#services" class="btn-secondary">Explore Coverage</a>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="insurance-card">
+                    <div class="card-header">
+                        <div class="card-icon">🛡️</div>
+                        <div class="card-title">Complete Protection</div>
+                    </div>
+                    <ul class="coverage-list">
+                        <li>Auto Insurance</li>
+                        <li>Home Insurance</li>
+                        <li>Life Insurance</li>
+                        <li>Business Insurance</li>
+                        <li>Health Insurance</li>
+                    </ul>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; color: #4CAF50; font-weight: bold;">
+                            From KES 5,000/month
+                        </div>
+                        <div style="color: #666; font-size: 0.9rem;">
+                            Trusted by 50,000+ families
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="trust-bar">
+            <div class="trust-item">
+                <span>⭐</span>
+                <span>4.9/5 Rating</span>
+            </div>
+            <div class="trust-item">
+                <span>🏆</span>
+                <span>Licensed & Regulated</span>
+            </div>
+            <div class="trust-item">
+                <span>📞</span>
+                <span>24/7 Support</span>
+            </div>
+            <div class="trust-item">
+                <span>⚡</span>
+                <span>Instant Quotes</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+        <div class="services-container">
+            <h2 class="section-title">Our Insurance Services</h2>
+            <div class="services-grid">
+                <div class="service-card" onclick="openChat('auto')">
+                    <div class="service-icon">
+                        <img 
+                            src="https://static.vecteezy.com/system/resources/previews/027/386/303/non_2x/modern-white-car-driving-in-the-park-background-luxury-city-car-wallpaper-photo.jpg" 
+                            alt="Car Icon" 
+                            style="width:48px;height:48px;object-fit:cover;contain-intrinsic-size:3000px 1500px;">
+                    </div>
+                    <h3 class="service-title">Auto Insurance</h3>
+                    <p class="service-description">
+                        Comprehensive coverage for your vehicle with competitive rates and quick claims processing.
+                    </p>
+                    <a href="auto-insurance.html" class="btn-primary">Learn More</a>
+                </div>
+                
+                <div class="service-card" onclick="openChat('home')">
+                    <div class="service-icon">🏠</div>
+                    <h3 class="service-title">Home Insurance</h3>
+                    <p class="service-description">
+                        Protect your home and belongings with our comprehensive homeowners insurance policies.
+                    </p>
+                    <a href="home-insurance.html" class="btn-primary">Learn More</a>
+                </div>
+                
+                <div class="service-card" onclick="openChat('life')">
+                    <div class="service-icon">❤️</div>
+                    <h3 class="service-title">Life Insurance</h3>
+                    <p class="service-description">
+                        Secure your family's future with our flexible life insurance plans and coverage options.
+                    </p>
+                    <a href="#" class="btn-primary">Learn More</a>
+                </div>
+                
+                <div class="service-card" onclick="openChat('business')">
+                    <div class="service-icon">🏢</div>
+                    <h3 class="service-title">Business Insurance</h3>
+                    <p class="service-description">
+                        Comprehensive business protection including liability, property, and workers' compensation.
+                    </p>
+                    <a href="#" class="btn-primary">Learn More</a>
+                </div>
+                
+                <div class="service-card" onclick="openChat('health')">
+                    <div class="service-icon">🏥</div>
+                    <h3 class="service-title">Health Insurance</h3>
+                    <p class="service-description">
+                        Quality healthcare coverage with extensive network of providers and wellness programs.
+                    </p>
+                    <a href="#" class="btn-primary">Learn More</a>
+                </div>
+                
+                <div class="service-card" onclick="openChat('travel')">
+                    <div class="service-icon">✈️</div>
+                    <h3 class="service-title">Travel Insurance</h3>
+                    <p class="service-description">
+                        Travel with confidence with our comprehensive travel insurance and emergency assistance.
+                    </p>
+                    <a href="#" class="btn-primary">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="about-container about-card">
+            <h2 class="section-title">About Hakikisha Insurance</h2>
+            <div class="about-placecard">
+                <strong>Who We Are</strong><br>
+                Hakikisha Insurance is a leading provider of comprehensive insurance solutions in Kenya. With years of experience in the industry, we are committed to protecting what matters most to you—your family, your assets, and your future.
+            </div>
+            <p>
+                <strong>Our Mission</strong><br>
+                To deliver affordable, reliable, and innovative insurance products that give our clients peace of mind and financial security.
+            </p>
+            <p>
+                <strong>Our Vision</strong><br>
+                To be the most trusted insurance partner in the region, known for exceptional service and customer satisfaction.
+            </p>
+            <p>
+                <strong>Why Choose Us?</strong>
+                <ul>
+                    <li>Licensed and regulated by the Insurance Regulatory Authority</li>
+                    <li>24/7 customer support and claims assistance</li>
+                    <li>Fast, transparent, and hassle-free claims process</li>
+                    <li>Flexible coverage options for individuals, families, and businesses</li>
+                    <li>Trusted by over 50,000 families and businesses</li>
+                </ul>
+            </p>
+            <p>
+                <strong>Our Values</strong>
+                <ul>
+                    <li>Integrity</li>
+                    <li>Customer Focus</li>
+                    <li>Innovation</li>
+                    <li>Excellence</li>
+                    <li>Community</li>
+                </ul>
+            </p>
+            <p>
+                <strong>Contact Us</strong><br>
+                Have questions? Reach out to our friendly team at <a href="mailto:info@hakikishainsurance.co.ke">info@hakikishainsurance.co.ke</a> or call us at 0800-000-000.
+            </p>
+        </div>
+    </section>
+
+    <!-- Chatbot Widget -->
+    <div class="chatbot-widget">
+        <button class="chat-toggle" onclick="toggleChat()">
+            🤖
+            <span class="notification-badge" id="chatNotification">1</span>
+        </button>
+        
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <div>
+                    <strong>Insurance Assistant</strong>
+                    <div style="font-size: 0.8rem; opacity: 0.8;">Online • Typically replies instantly</div>
+                </div>
+                <button onclick="toggleChat()" style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;">✕</button>
+            </div>
+            
+            <div class="chat-body" id="chatBody">
+                <div class="chat-message bot-message">
+                    <div class="message-avatar bot-avatar">🤖</div>
+                    <div class="message-content">
+                        👋 Hi there! I'm your AI insurance assistant. I can help you with:
+                        <div class="quick-options">
+                            <button class="quick-option" onclick="sendMessage('Get a quote')">Get Quote</button>
+                            <button class="quick-option" onclick="sendMessage('Coverage info')">Coverage Info</button>
+                            <button class="quick-option" onclick="sendMessage('Find agent')">Find Agent</button>
+                            <button class="quick-option" onclick="sendMessage('File claim')">File Claim</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Ask me about insurance..." onkeypress="handleEnter(event)">
+                <button class="chat-send" onclick="sendUserMessage()">
+                    ➤
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+        function toggleChat() {
+            const chatWindow = document.getElementById('chatWindow');
+            if (chatWindow.style.display === 'block') {
+                chatWindow.style.display = 'none';
+            } else {
+                chatWindow.style.display = 'block';
+            }
+        }
+
+        // Optionally, initialize chat window as hidden on page load
+        window.onload = function() {
+            document.getElementById('chatWindow').style.display = 'none';
+        };
+    </script>
+</body>
+</html>

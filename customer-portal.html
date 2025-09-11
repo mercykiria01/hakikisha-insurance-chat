@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Portal - Hakikisha Insurance</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .portal-container {
+            max-width: 900px;
+            margin: 3rem auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(44,90,160,0.10), 0 1.5px 8px rgba(44,90,160,0.08);
+            padding: 2.5rem 2rem;
+        }
+        .portal-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .portal-header .avatar {
+            font-size: 2.5rem;
+            background: #e3f2fd;
+            border-radius: 50%;
+            padding: 0.5rem 1rem;
+        }
+        .portal-header .welcome {
+            font-size: 1.5rem;
+            color: #2c5aa0;
+            font-weight: bold;
+        }
+        .portal-actions {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        .portal-action-card {
+            flex: 1;
+            min-width: 220px;
+            background: #f4f8fd;
+            border: 2px solid #2c5aa0;
+            border-radius: 12px;
+            padding: 1.2rem 1.2rem 1rem 1.2rem;
+            box-shadow: 0 2px 12px rgba(44,90,160,0.07);
+            color: #222;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        .portal-action-card strong {
+            color: #2c5aa0;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        .portal-action-card button {
+            margin-top: 1rem;
+            background: #2c5aa0;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1.2rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header (reuse from index.html if needed) -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-emoji">👌</span>
+                <span class="logo-title">Hakikisha Insurance</span>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="index.html#home">Home</a></li>
+                    <li><a href="index.html#services">Insurance</a></li>
+                    <li><a href="index.html#claims">Claims</a></li>
+                    <li><a href="index.html#about">About</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="cta-buttons">
+                <a href="index.html#quote" class="btn-secondary">Get Quote</a>
+                <a href="login.html" class="btn-primary">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="portal-container">
+            <div class="portal-header">
+                <div class="avatar">👤</div>
+                <div class="welcome">Welcome to your Customer Portal</div>
+            </div>
+            <p>
+                Here you can manage your insurance policies, view claims, get personalized reminders, and chat with our support team.
+            </p>
+            <div class="portal-actions">
+                <div class="portal-action-card">
+                    <strong>My Policies</strong>
+                    <p>View and manage your active insurance policies.</p>
+                    <button onclick="window.location.href='#'">View Policies</button>
+                </div>
+                <div class="portal-action-card">
+                    <strong>Claims & Status</strong>
+                    <p>Track your claims and check their status.</p>
+                    <button onclick="window.location.href='#'">View Claims</button>
+                </div>
+                <div class="portal-action-card">
+                    <strong>Reminders & Payments</strong>
+                    <p>See upcoming payments and get reminders for due premiums.</p>
+                    <button onclick="window.location.href='#'">View Reminders</button>
+                </div>
+                <div class="portal-action-card">
+                    <strong>Chat Support</strong>
+                    <p>Get instant help from our AI assistant or connect to a live agent.</p>
+                    <button onclick="window.location.href='index.html#chatbot-widget'">Chat Now</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

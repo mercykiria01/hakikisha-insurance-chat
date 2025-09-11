@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Hakikisha Insurance</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 5rem auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(44,90,160,0.10);
+            padding: 2rem 2.5rem;
+        }
+        .login-container h2 {
+            color: #2c5aa0;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .login-container label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #222;
+        }
+        .login-container input, .login-container select {
+            width: 100%;
+            padding: 0.7rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 0.8rem;
+            background: #2c5aa0;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .login-container .switch-link {
+            display: block;
+            text-align: center;
+            margin-top: 1rem;
+            color: #2c5aa0;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="loginBox">
+        <h2>Login</h2>
+        <form id="loginForm" method="POST">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" name="email" required>
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" name="password" required>
+            <button type="submit">Login</button>
+        </form>
+        <span class="switch-link" onclick="showRegister()">Don't have an account? Register</span>
+    </div>
+    <div class="login-container" id="registerBox" style="display:none;">
+        <h2>Register</h2>
+        <form id="registerForm" method="POST" action="http://localhost:5000/register">
+            <label for="register-name">Name</label>
+            <input type="text" id="register-name" name="name" required>
+            <label for="register-email">Email</label>
+            <input type="email" id="register-email" name="email" required>
+            <label for="register-password">Password</label>
+            <input type="password" id="register-password" name="password" required>
+            <label for="register-role">Role</label>
+            <select id="register-role" name="role" required>
+                <option value="customer">Customer</option>
+                <option value="admin">Admin</option>
+            </select>
+            <button type="submit">Register</button>
+        </form>
+        <span class="switch-link" onclick="showLogin()">Already have an account? Login</span>
+    </div>
+    <div class="login-container" id="otpBox" style="display:none;">
+        <h2>Verify OTP</h2>
+        <form id="otpForm" method="POST">
+            <label for="otp-email">Email</label>
+            <input type="email" id="otp-email" name="email" required>
+            <label for="otp-code">OTP Code</label>
+            <input type="text" id="otp-code" name="otp" required>
+            <button type="submit">Verify</button>
+        </form>
+        <span class="switch-link" onclick="showLogin()">Back to Login</span>
+    </div>
+    <script>
+        function showRegister() {
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('registerBox').style.display = 'block';
+            document.getElementById('otpBox').style.display = 'none';
+        }
+        function showLogin() {
+            document.getElementById('registerBox').style.display = 'none';
+            document.getElementById('loginBox').style.display = 'block';
+            document.getElementById('otpBox').style.display = 'none';
+        }
+        function showOtp() {
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('registerBox').style.display = 'none';
+            document.getElementById('otpBox').style.display = 'block';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            const response = await fetch('http://localhost:5000/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.message === "Login successful") {
+                window.location.href = "customer-portal.html";
+            } else if (response.status === 403 && result.error && result.error.includes("verify")) {
+                // Show OTP box if verification is required
+                showOtp();
+                document.getElementById('otp-email').value = email; // prefill email
+            } else {
+                alert(result.error || "Login failed");
+            }
+        });
+
+        document.getElementById('otpForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('otp-email').value;
+            const otp = document.getElementById('otp-code').value;
+
+            const response = await fetch('http://localhost:5000/verify-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.message === "Verification successful") {
+                alert("Verification successful! You can now log in.");
+                showLogin();
+            } else {
+                alert(result.error || "Verification failed");
+            }
+        });
+    </script>
+</body>
+</html>

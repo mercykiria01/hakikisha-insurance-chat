@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=3000, initial-scale=1.0">
+    <title>Home Insurance - Hakikisha Insurance</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .home-insurance-main {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 2rem;
+            margin: 4rem auto;
+            max-width: 90vw;
+        }
+        .home-insurance-img {
+            width: 900px;
+            height: 450px;
+            max-width: 100%;
+            object-fit: cover;
+            contain-intrinsic-size: 3000px 1500px;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(44,90,160,0.10), 0 1.5px 8px rgba(44,90,160,0.08);
+        }
+        .home-insurance-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 320px;
+            max-width: 500px;
+        }
+        .home-insurance-content h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c5aa0;
+            margin-bottom: 1.5rem;
+        }
+        @media (max-width: 1100px) {
+            .home-insurance-main {
+                flex-direction: column;
+                align-items: center;
+            }
+            .home-insurance-img {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header (same as landing page) -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-emoji">👌</span>
+                <span class="logo-title">Hakikisha Insurance</span>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="index.html#home">Home</a></li>
+                    <li><a href="index.html#services">Insurance</a></li>
+                    <li><a href="index.html#claims">Claims</a></li>
+                    <li><a href="index.html#about">About</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="cta-buttons">
+                <a href="index.html#quote" class="btn-secondary">Get Quote</a>
+                <a href="index.html#login" class="btn-primary">Client Login</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="home-insurance-main">
+        <div style="display: flex; flex-direction: column;">
+            <img 
+                src="https://cdn.wallpapersafari.com/37/82/BI78kU.jpg" 
+                alt="Home Insurance"
+                class="home-insurance-img"
+                style="contain-intrinsic-size:3000px 1500px;"
+            >
+            <div class="home-insurance-details">
+                <h2>OVERVIEW</h2>
+                <p>
+                    First Assurance Domestic package cover is comprehensive insurance for residential property/private dwelling. This covers your house and belongings against life’s unexpected events.
+                </p>
+                <h2>FEATURES</h2>
+                <ul>
+                    <li>
+                        <strong>Buildings</strong> – The residential premises including but not limited to landlords fixtures and fittings and the following, in so far as they form part of the property; walls, gates, fences, terraces, patios, drives, paths, carports, garages and outbuildings.
+                    </li>
+                    <li>
+                        <strong>Contents</strong> – Household goods, personal effects, including but not limited  to  valuables, furniture, fixtures and fittings (including interior decorations) all belonging to the Insured or a member of his household.
+                    </li>
+                    <li>
+                        <strong>All Risks</strong> – This section provides cover for specified portable items such as cameras, radios, jewellery, watches, televisions, ear-rings, sports kits and the like. Cover is provided against all risks other than the ones excluded on a worldwide base.
+                    </li>
+                    <li>
+                        <strong>WIBA-Domestic employees</strong> – This section covers the insured against third party legal risk for domestic servants like house help, watchmen, gardeners, and chauffeurs. The cover provided is in respect of accidental injury, death, or disease arising out of and in the course of their employment in the premises.
+                    </li>
+                    <li>
+                        <strong>Owner’s Liability &amp; Occupier’s Liability</strong> – The liability section provides cover against public liability whether the policy is issued to cover the buildings or the contents or both.
+                    </li>
+                </ul>
+                <h2>BENEFITS</h2>
+                <p>
+                    If you take up our Domestic package you will enjoy, exciting and more relevant range of cover benefits as follows:
+                </p>
+                <ul>
+                    <li>
+                        Damage to the property insured caused by Fire, Lightening, Earthquake, Explosion, Riot and strike/malicious damage, Special perils A to H which include hail, snow, wind, hurricane, cyclone, tornado or typhoon, flood or rain, impact, aircraft, or articles falling, subterranean fire.
+                    </li>
+                    <li>
+                        Replacement/compensation on Theft of the insured domestic items
+                    </li>
+                    <li>
+                        Accidental Damage (Under all risks section only)
+                    </li>
+                    <li>
+                        Accidental injury, death, or disease of insured employees arising out of and in the course of their employment in the premises
+                    </li>
+                    <li>
+                        Public Liability
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="home-insurance-content">
+            <h1>Domestic Package Insurance</h1>
+        </div>
+    </main>
+</body>
+</html>

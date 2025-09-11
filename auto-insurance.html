@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=3000, initial-scale=1.0">
+    <title>Auto Insurance - Hakikisha Insurance</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .auto-insurance-main {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 2rem;
+            margin: 4rem auto;
+            max-width: 90vw;
+        }
+        .auto-insurance-img {
+            width: 900px;
+            height: 450px;
+            max-width: 100%;
+            object-fit: cover;
+            contain-intrinsic-size: 3000px 1500px;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(44,90,160,0.10), 0 1.5px 8px rgba(44,90,160,0.08);
+        }
+        .auto-insurance-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 320px;
+            max-width: 500px;
+        }
+        .auto-insurance-content h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c5aa0;
+            margin-bottom: 1.5rem;
+        }
+        .auto-cards-row {
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .auto-info-card {
+            background: #f9f9f9;
+            border-radius: 12px;
+            padding: 1.5rem;
+            flex: 1;
+            min-width: 220px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        @media (max-width: 1100px) {
+            .auto-insurance-main {
+                flex-direction: column;
+                align-items: center;
+            }
+            .auto-insurance-img {
+                width: 100%;
+                height: auto;
+            }
+            .auto-cards-row {
+                flex-direction: column;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header (same as landing page) -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-emoji">👌</span>
+                <span class="logo-title">Hakikisha Insurance</span>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="index.html#home">Home</a></li>
+                    <li><a href="index.html#services">Insurance</a></li>
+                    <li><a href="index.html#claims">Claims</a></li>
+                    <li><a href="index.html#about">About</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="cta-buttons">
+                <a href="index.html#quote" class="btn-secondary">Get Quote</a>
+                <a href="index.html#login" class="btn-primary">Client Login</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="auto-insurance-main">
+        <div style="display: flex; flex-direction: column;">
+            <img 
+                src="https://static.vecteezy.com/system/resources/previews/027/386/303/non_2x/modern-white-car-driving-in-the-park-background-luxury-city-car-wallpaper-photo.jpg" 
+                alt="Car Icon"
+                class="auto-insurance-img"
+                style="contain-intrinsic-size:3000px 1500px;"
+            >
+            <div class="auto-cards-row">
+                <div class="auto-info-card">
+                    <strong>Motor Private</strong>
+                    <p>Comprehensive and third-party cover for privately owned vehicles, ensuring your personal car is protected on and off the road.</p>
+                </div>
+                <div class="auto-info-card">
+                    <strong>Motor Commercial</strong>
+                    <p>Insurance solutions for commercial vehicles, including fleets, taxis, and delivery vans, tailored for business needs and legal compliance.</p>
+                </div>
+                <div class="auto-info-card">
+                    <strong>Motorcycle</strong>
+                    <p>Affordable protection for motorcycles and riders, covering theft, accidents, and third-party liabilities.</p>
+                </div>
+            </div>
+        </div>
+        <div class="auto-insurance-content">
+            <h1>Motor Insurance Plans</h1>
+            <!-- You can add more details about the plans here -->
+        </div>
+    </main>
+</body>
+</html>
