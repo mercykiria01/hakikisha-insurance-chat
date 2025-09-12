@@ -1,28 +1,26 @@
 require('dotenv').config(); // Load .env variables
 
 const express = require('express');
+const app = express(); // This line was missing!
 
 const bcrypt = require('bcryptjs');
-
 const { v4: uuidv4 } = require('uuid');
-
 // const { CosmosClient } = require('@azure/cosmos');
-
 const bodyParser = require('body-parser');
-
 const nodemailer = require('nodemailer');
-
 const sql = require('mssql');
 
-
-
-const app = express();
-
+// Middleware
 app.use(bodyParser.json());
-
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.use(express.static(__dirname));
+
+// Add CORS headers for Dialogflow
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 
 
 
@@ -280,7 +278,6 @@ const config = {
 
 
 const express = require('express');
-const app = express();
 
 // Middleware for parsing JSON and handling HTTPS
 app.use(express.json());
