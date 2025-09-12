@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 
 const { v4: uuidv4 } = require('uuid');
 
-const { CosmosClient } = require('@azure/cosmos');
+// const { CosmosClient } = require('@azure/cosmos');
 
 const bodyParser = require('body-parser');
 
@@ -178,34 +178,34 @@ app.use(express.static(__dirname));
 
 // ================== LOGIN ==================
 
-app.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
-    }
+//app.post('/login', async (req, res) => {
+//  try {
+  //  const { email, password } = req.body;
+    //if (!email || !password) {
+      //return res.status(400).json({ error: "Email and password are required" });
+    //}
 
-    const result = await sql.query`SELECT * FROM Users WHERE email = ${email}`;
-    const user = result.recordset[0];
+    //const result = await sql.query`SELECT * FROM Users WHERE email = ${email}`;
+    //const user = result.recordset[0];
 
-    if (!user) {
-      return res.status(400).json({ error: "Invalid credentials" });
-    }
-    if (!user.verified) {
-      return res.status(403).json({ error: "Please verify your account with the OTP sent to your email." });
-    }
+    //if (!user) {
+      //return res.status(400).json({ error: "Invalid credentials" });
+    //}
+    //if (!user.verified) {
+      //return res.status(403).json({ error: "Please verify your account with the OTP sent to your email." });
+    //}
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ error: "Invalid credentials" });
-    }
+    //const isMatch = await bcrypt.compare(password, user.password);
+    //if (!isMatch) {
+      //return res.status(400).json({ error: "Invalid credentials" });
+    //}
 
-    res.status(200).json({ message: "Login successful", role: user.role });
-  } catch (error) {
-    console.error("❌ Login error:", error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+    //res.status(200).json({ message: "Login successful", role: user.role });
+  //} catch (error) {
+    //console.error("❌ Login error:", error);
+    //res.status(500).json({ error: "Server error" });
+  //}
+//});
 
 // ================== OTP VERIFICATION ==================
 
@@ -238,37 +238,220 @@ const config = {
 };
 
 // Webhook endpoint for Dialogflow
+//app.post('/webhook', async (req, res) => {
+  //const intent = req.body.queryResult.intent.displayName;
+  //const parameters = req.body.queryResult.parameters;
+
+  //console.log('Parameters received:', parameters);
+
+  //console.log('Intent received:', intent);
+
+
+  //try {
+    // Connect to SQL (use a pool for production)
+    //await sql.connect(config);
+
+    //if (intent === 'PolicyDetails') {
+      //const policyNumber = parameters['policy-number'];
+      //const result = await sql.query`SELECT * FROM fn_GetPolicyDetails(${policyNumber})`;
+      //const policy = result.recordset[0];
+
+      //if (!policy) {
+        //return res.json({ fulfillmentText: 'No policy found with that number.' });
+      //}
+
+      //const responseText = `Your policy ${policy.PolicyName} covers ${policy.PolicyType} and is valid until ${policy.EndDate}.`;
+      //return res.json({ fulfillmentText: responseText });
+    //} else {
+      //return res.json({ fulfillmentText: 'Intent not recognized.' });
+    //}
+  //} catch (err) {
+    //console.error('Error:', err);
+    //return res.json({ fulfillmentText: 'Sorry, I couldn’t process your request right now.' });
+  //}
+//});
+
+//const PORT = process.env.PORT;
+
+
+
+//app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
+
+
+const express = require('express');
+const app = express();
+
+// Middleware for parsing JSON and handling HTTPS
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Add CORS headers for Dialogflow
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
+
+// Test endpoint to verify webhook is accessible
+app.get('/webhook', (req, res) => {
+  console.log('GET request to /webhook - webhook is accessible');
+  res.json({ 
+    status: 'Webhook is working',
+    timestamp: new Date().toISOString(),
+    message: 'This endpoint receives POST requests from Dialogflow'
+  });
+});
+
+// Add a root endpoint for basic testing
+app.get('/', (req, res) => {
+  console.log('GET request to root');
+  res.json({ 
+    status: 'Server is running',
+    webhook_url: '/webhook',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Webhook endpoint for Dialogflow with enhanced debugging
+app.get('/webhook', (req, res) => {
+  console.log('GET request to /webhook - webhook is accessible');
+  res.json({ 
+    status: 'Webhook is working',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Webhook endpoint for Dialogflow with enhanced debugging
 app.post('/webhook', async (req, res) => {
+  // Add comprehensive logging to debug the issue
+  console.log('=== WEBHOOK REQUEST DEBUG ===');
+  console.log('Full request body:', JSON.stringify(req.body, null, 2));
+  
+  // Check if the request structure is what we expect
+  if (!req.body || !req.body.queryResult) {
+    console.log('ERROR: Missing queryResult in request body');
+    return res.json({ fulfillmentText: 'Invalid request structure.' });
+  }
+
+  if (!req.body.queryResult.intent) {
+    console.log('ERROR: Missing intent in queryResult');
+    return res.json({ fulfillmentText: 'No intent found in request.' });
+  }
+
   const intent = req.body.queryResult.intent.displayName;
   const parameters = req.body.queryResult.parameters;
+  
+  console.log('Intent received:', intent);
+  console.log('Parameters received:', JSON.stringify(parameters, null, 2));
+  console.log('Intent type:', typeof intent);
+  console.log('Intent length:', intent?.length);
+  
+  // Check for common issues
+  if (!intent) {
+    console.log('ERROR: Intent is null or undefined');
+    return res.json({ fulfillmentText: 'Intent is missing.' });
+  }
 
   try {
     // Connect to SQL (use a pool for production)
     await sql.connect(config);
-
-    if (intent === 'policy.details') {
-      const policyNumber = parameters['policy-number'];
+    
+    // Use exact string comparison and also check for variations
+    console.log('Comparing intent:', `"${intent}" === "PolicyDetails"`);
+    
+    // Try multiple intent name variations
+    const intentVariations = [
+      'PolicyDetails',
+      'Policy Details', 
+      'policydetails',
+      'policy.details',
+      'policy-details',
+      intent.toLowerCase(),
+      intent.trim()
+    ];
+    
+    const matchedIntent = intentVariations.find(variation => 
+      intent === variation || intent.toLowerCase() === variation.toLowerCase()
+    );
+    
+    if (matchedIntent || intent.toLowerCase().includes('policy')) {
+      console.log('Policy intent matched! Matched with:', matchedIntent || intent);
+      
+      // Try different parameter name variations
+      const policyNumber = parameters['policy-number'] || 
+                           parameters['policyNumber'] || 
+                           parameters.number ||
+                           parameters.any ||
+                           parameters['policy_number'];
+      
+      console.log('All parameters:', Object.keys(parameters));
+      console.log('Policy number extracted:', policyNumber);
+      
+      if (!policyNumber) {
+        console.log('ERROR: No policy number found in parameters');
+        console.log('Available parameter keys:', Object.keys(parameters));
+        
+        // Check if we can extract from the original query text
+        const queryText = req.body.queryResult.queryText;
+        console.log('Original query:', queryText);
+        
+        // Try to extract policy number from query text using regex
+        const policyMatch = queryText.match(/POL\d+|[A-Z]{2,3}\d+|\b[A-Z]+\d+\b/i);
+        if (policyMatch) {
+          const extractedPolicy = policyMatch[0];
+          console.log('Extracted policy from query text:', extractedPolicy);
+          // Use the extracted policy number
+          const result = await sql.query`SELECT * FROM fn_GetPolicyDetails(${extractedPolicy})`;
+          const policy = result.recordset[0];
+          
+          if (!policy) {
+            return res.json({ 
+              fulfillmentText: `No policy found with number ${extractedPolicy}.` 
+            });
+          }
+          
+          const responseText = `Your policy ${policy.PolicyName} covers ${policy.PolicyType} and is valid until ${policy.EndDate}.`;
+          return res.json({ fulfillmentText: responseText });
+        }
+        
+        return res.json({ 
+          fulfillmentText: 'Please provide a valid policy number (e.g., POL123456).' 
+        });
+      }
+      
       const result = await sql.query`SELECT * FROM fn_GetPolicyDetails(${policyNumber})`;
       const policy = result.recordset[0];
-
+      
       if (!policy) {
-        return res.json({ fulfillmentText: 'No policy found with that number.' });
+        console.log('No policy found for number:', policyNumber);
+        return res.json({ 
+          fulfillmentText: 'No policy found with that number.' 
+        });
       }
-
+      
       const responseText = `Your policy ${policy.PolicyName} covers ${policy.PolicyType} and is valid until ${policy.EndDate}.`;
+      console.log('Sending response:', responseText);
       return res.json({ fulfillmentText: responseText });
+      
     } else {
-      return res.json({ fulfillmentText: 'Intent not recognized.' });
+      // List all possible intents we're receiving to help debug
+      console.log('Intent not recognized. Received intent:', intent);
+      console.log('Expected variations: PolicyDetails, Policy Details, etc.');
+      console.log('Character codes for received intent:', 
+        intent.split('').map(char => char.charCodeAt(0)));
+      
+      return res.json({ 
+        fulfillmentText: `Intent "${intent}" not recognized. Please check your Dialogflow intent configuration.` 
+      });
     }
   } catch (err) {
-    console.error('Error:', err);
-    return res.json({ fulfillmentText: 'Sorry, I couldn’t process your request right now.' });
+    console.error('Database/Server Error:', err);
+    return res.json({ 
+      fulfillmentText: 'Sorry, I couldn\'t process your request right now.' 
+    });
   }
 });
 
-const PORT = process.env.PORT || 5000;
-
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-
-
-
