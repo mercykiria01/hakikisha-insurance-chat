@@ -1,7 +1,8 @@
 require('dotenv').config(); // Load .env variables
 
 const express = require('express');
-const app = express(); // This line was missing!
+const app = express();
+app.use(express.json());
 
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
@@ -471,5 +472,17 @@ app.post('/api/customer-auth', async (req, res) => {
   }
 });
 
+// Example endpoint for staff auth
+app.post('/api/user-auth', async (req, res) => {
+  // Your logic here
+  res.json({ success: true, message: "User auth endpoint hit!" });
+});
+
+// Root endpoint for testing
+app.get('/', (req, res) => {
+  res.send('Backend is running!');
+});
+
+// Listen on the correct port
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
