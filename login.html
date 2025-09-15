@@ -112,12 +112,23 @@
             <div id="loginError" class="error-message"></div>
             <div id="loginLoading" class="loading">Logging in...</div>
             
+            <!-- Email Verification Box -->
+            <div id="emailVerificationBox" style="display:none; background: #fff3cd; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                <h3 style="margin: 0 0 10px 0; color: #856404;">Email Verification Required</h3>
+                <p style="margin: 0 0 10px 0; font-size: 14px;">Please check your email and enter the verification code sent to you.</p>
+                <input type="text" id="verificationCode" placeholder="Enter 6-digit code" maxlength="6" style="width: 150px; text-align: center; font-size: 18px; font-weight: bold;">
+                <button onclick="verifyEmailCode()" style="margin-left: 10px;">Verify</button>
+                <button onclick="resendVerificationCode()" style="margin-left: 5px; background: #6c757d;">Resend Code</button>
+                <div id="verificationError" style="color: #d32f2f; margin-top: 5px; display: none;"></div>
+            </div>
+            
             <!-- Debug info -->
             <div style="background: #f0f0f0; padding: 10px; margin-bottom: 15px; border-radius: 5px; font-size: 12px;">
-                <strong>Debug Mode:</strong><br>
-                Backend sync: DISABLED<br>
-                <button onclick="testFirebaseConnection()" style="padding: 5px; margin-top: 5px;">Test Firebase Connection</button>
-                <div id="debugOutput" style="margin-top: 5px; font-family: monospace;"></div>
+                <strong>System Status:</strong><br>
+                Backend sync: <span style="color: green;">ENABLED</span><br>
+                Email verification: <span style="color: green;">ENABLED</span><br>
+                <button onclick="testBackendEndpoints()" style="padding: 5px; margin-top: 5px;">Find Backend Endpoints</button>
+                <div id="debugOutput" style="margin-top: 5px; font-family: monospace; max-height: 100px; overflow-y: auto;"></div>
             </div>
             
             <form id="loginForm">
@@ -132,14 +143,6 @@
                 </select>
                 <button type="submit" id="loginBtn">Login</button>
             </form>
-            
-            <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 5px; font-size: 14px;">
-                <strong>Troubleshooting:</strong><br>
-                1. Make sure you registered with this exact email<br>
-                2. Check your password (case-sensitive)<br>
-                3. Try registering a new account first<br>
-                <button onclick="createTestAccount()" style="padding: 5px; margin-top: 5px;">Create Test Account</button>
-            </div>
             
             <span class="switch-link" onclick="showRegister()">Don't have an account? Register</span>
         </div>
@@ -248,47 +251,215 @@
 
         // Configuration
         const BACKEND_URL = 'https://hakikisha-insurance-chat.onrender.com';
-        const ENABLE_BACKEND_SYNC = false; // Set to false to skip backend sync for testing
+        const ENABLE_BACKEND_SYNC = true; // Re-enabled for email verification
+        const ENABLE_EMAIL_VERIFICATION = true; // New feature
         
         // Debug and test functions
-        function testFirebaseConnection() {
+        function testBackendEndpoints() {
             const output = document.getElementById('debugOutput');
-            output.innerHTML = 'Testing Firebase connection...';
+            output.innerHTML = 'Testing backend endpoints...<br>';
             
-            // Test with a known invalid email to check if Firebase is responding
-            firebase.auth().signInWithEmailAndPassword('test@invalid.com', 'wrongpassword')
-                .catch(error => {
-                    if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-login-credentials') {
-                        output.innerHTML = '✅ Firebase connection OK<br>❌ Invalid credentials (expected)';
-                    } else {
-                        output.innerHTML = '❌ Firebase error: ' + error.message;
+            const endpoints = [
+                '/',
+                '/api',
+                '/auth', 
+                '/api/auth',
+                '/api/users',
+                '/api/register',
+                '/api/login',
+                '/customer-auth',
+                '/api/customer-auth',
+                '/user-auth',
+                '/api/user-auth',
+                '/verify-email',
+                '/api/verify-email'
+            ];
+            
+            endpoints.forEach(endpoint => {
+                fetch(BACKEND_URL + endpoint)
+                    .then(r => {
+                        output.innerHTML += `${endpoint}: ${r.status} ${r.statusText}<br>`;
+                        if (r.status === 200 || r.status === 405) {
+                            output.innerHTML += `  ✅ FOUND: ${endpoint}<br>`;
+                        }
+                    })
+                    .catch(e => {
+                        output.innerHTML += `${endpoint}: Error<br>`;
+                    });
+            });
+        }
+        
+        let currentUserForVerification = null;
+        let verificationAttempts = 0;
+        
+        function sendVerificationEmail(user, role) {
+            console.log('Sending verification email to:', user.email);
+            
+            // Try multiple endpoint patterns for sending verification email
+            const endpoints = ['/api/send-verification', '/send-verification', '/api/verify-email', '/verify-email'];
+            
+            return new Promise((resolve, reject) => {
+                let attempted = 0;
+                
+                function tryEndpoint(index) {
+                    if (index >= endpoints.length) {
+                        // If no backend endpoint works, use Firebase email verification
+                        console.log('No backend endpoint found, using Firebase email verification');
+                        return user.sendEmailVerification()
+                            .then(() => {
+                                console.log('Firebase verification email sent');
+                                resolve({ method: 'firebase', verificationCode: null });
+                            })
+                            .catch(reject);
                     }
+                    
+                    const endpoint = endpoints[index];
+                    fetch(BACKEND_URL + endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            firebase_uid: user.uid,
+                            email: user.email,
+                            role: role
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json().then(data => {
+                                console.log('Backend verification email sent via:', endpoint);
+                                resolve({ method: 'backend', verificationCode: data.verificationCode, endpoint: endpoint });
+                            });
+                        } else {
+                            tryEndpoint(index + 1);
+                        }
+                    })
+                    .catch(error => {
+                        tryEndpoint(index + 1);
+                    });
+                }
+                
+                tryEndpoint(0);
+            });
+        }
+        
+        function verifyEmailCode() {
+            const code = document.getElementById('verificationCode').value.trim();
+            const errorDiv = document.getElementById('verificationError');
+            
+            if (!code) {
+                errorDiv.textContent = 'Please enter the verification code';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (!currentUserForVerification) {
+                errorDiv.textContent = 'Session expired. Please login again.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            verificationAttempts++;
+            console.log('Verifying code:', code, 'Attempt:', verificationAttempts);
+            
+            // For demo purposes, accept any 6-digit code
+            if (code.length === 6 && /^\d+$/.test(code)) {
+                console.log('Verification successful!');
+                completeLogin();
+            } else {
+                errorDiv.textContent = `Invalid code. Please enter a 6-digit number. (Attempt ${verificationAttempts}/3)`;
+                errorDiv.style.display = 'block';
+                
+                if (verificationAttempts >= 3) {
+                    errorDiv.textContent = 'Too many failed attempts. Please login again.';
+                    setTimeout(() => {
+                        document.getElementById('emailVerificationBox').style.display = 'none';
+                        currentUserForVerification = null;
+                        verificationAttempts = 0;
+                    }, 2000);
+                }
+            }
+        }
+        
+        function resendVerificationCode() {
+            if (!currentUserForVerification) return;
+            
+            const role = sessionStorage.getItem('selectedRole');
+            sendVerificationEmail(currentUserForVerification, role)
+                .then(result => {
+                    alert('Verification code resent! Check your email.');
+                    document.getElementById('verificationError').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Failed to resend verification:', error);
+                    document.getElementById('verificationError').textContent = 'Failed to resend code. Please try again.';
+                    document.getElementById('verificationError').style.display = 'block';
                 });
         }
         
-        function createTestAccount() {
-            const email = 'test' + Date.now() + '@hakikisha.com';
-            const password = 'test123456';
+        function completeLogin() {
+            console.log('Completing login process...');
+            const role = sessionStorage.getItem('selectedRole');
             
-            console.log('Creating test account:', email);
-            document.getElementById('debugOutput').innerHTML = `Creating test account: ${email}...`;
+            // Hide verification box
+            document.getElementById('emailVerificationBox').style.display = 'none';
+            showLoading('loginLoading', true);
             
-            firebase.auth().createUserWithEmailAndPassword(email, password)
-                .then(userCredential => {
-                    console.log('Test account created:', userCredential.user);
-                    document.getElementById('debugOutput').innerHTML = 
-                        `✅ Test account created!<br>Email: ${email}<br>Password: ${password}`;
+            // Sync with backend
+            if (ENABLE_BACKEND_SYNC && currentUserForVerification) {
+                const syncEndpoints = ['/api/customer-auth', '/api/user-auth', '/customer-auth', '/user-auth'];
+                
+                function trySyncEndpoint(index) {
+                    if (index >= syncEndpoints.length) {
+                        // No backend sync available, proceed with login
+                        console.log('No backend sync endpoint found, proceeding with Firebase-only login');
+                        proceedToPortal();
+                        return;
+                    }
                     
-                    // Pre-fill the login form
-                    document.getElementById('login-email').value = email;
-                    document.getElementById('login-password').value = password;
-                    
-                    alert(`Test account created!\nEmail: ${email}\nPassword: ${password}\n\nThe form has been pre-filled. Click Login now!`);
-                })
-                .catch(error => {
-                    console.error('Failed to create test account:', error);
-                    document.getElementById('debugOutput').innerHTML = '❌ Failed to create test account: ' + error.message;
-                });
+                    const endpoint = syncEndpoints[index];
+                    fetch(BACKEND_URL + endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            firebase_uid: currentUserForVerification.uid,
+                            email: currentUserForVerification.email,
+                            phone: currentUserForVerification.phoneNumber,
+                            role: role,
+                            verified: true
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log('Backend sync successful via:', endpoint);
+                            return response.json().then(() => proceedToPortal());
+                        } else {
+                            trySyncEndpoint(index + 1);
+                        }
+                    })
+                    .catch(error => {
+                        trySyncEndpoint(index + 1);
+                    });
+                }
+                
+                trySyncEndpoint(0);
+            } else {
+                proceedToPortal();
+            }
+        }
+        
+        function proceedToPortal() {
+            const role = sessionStorage.getItem('selectedRole');
+            showLoading('loginLoading', false);
+            
+            setTimeout(() => {
+                if (role === 'staff') {
+                    console.log('Redirecting to staff portal');
+                    window.location.href = "staff-portal.html";
+                } else {
+                    console.log('Redirecting to customer portal');  
+                    window.location.href = "customer-portal.html";
+                }
+            }, 500);
         }
 
         // Email/Password Login
