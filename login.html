@@ -483,11 +483,17 @@
             
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then(userCredential => {
-                    console.log('Firebase login successful:', userCredential.user);
+                    const user = userCredential.user;
+                    if (!user.emailVerified) {
+                        showError('loginError', "Please verify your email before logging in. Check your inbox for the verification email.");
+                        showLoading('loginLoading', false);
+                        loginBtn.disabled = false;
+                        firebase.auth().signOut();
+                        return Promise.reject("Email not verified");
+                    }
                     sessionStorage.setItem('selectedRole', role);
-                    
+
                     if (!ENABLE_BACKEND_SYNC) {
-                        console.log('Backend sync disabled, redirecting directly');
                         setTimeout(() => {
                             if (role === 'staff') {
                                 window.location.href = "staff-portal.html";
@@ -497,12 +503,9 @@
                         }, 500);
                         return Promise.resolve();
                     }
-                    
+
                     // Sync with backend
-                    const user = userCredential.user;
                     const syncUrl = `${BACKEND_URL}/api/customer-auth`;
-                    console.log('Syncing with backend at:', syncUrl);
-                    
                     return fetch(syncUrl, {
                         method: 'POST',
                         headers: { 
@@ -517,54 +520,32 @@
                         })
                     })
                     .then(response => {
-                        console.log('Backend sync response status:', response.status);
-                        console.log('Response URL:', response.url);
                         if (!response.ok) {
                             throw new Error(`Backend sync failed: ${response.status} ${response.statusText}`);
                         }
                         return response.json();
                     })
-                    .then(data => {
-                        console.log('Backend sync successful:', data);
-                        return data;
-                    });
+                    .then(data => data);
                 })
                 .then(data => {
                     if (ENABLE_BACKEND_SYNC) {
                         console.log('Backend sync completed:', data);
                     }
                     const role = sessionStorage.getItem('selectedRole');
-                    
-                    // Add a small delay to ensure everything is processed
                     setTimeout(() => {
                         if (role === 'staff') {
-                            console.log('Redirecting to staff portal');
                             window.location.href = "staff-portal.html";
                         } else {
-                            console.log('Redirecting to customer portal');
                             window.location.href = "customer-portal.html";
                         }
                     }, 500);
                 })
                 .catch(error => {
                     console.error('Login error:', error);
-                    
-                    // If backend sync fails but Firebase auth succeeded, still allow login
-                    if (error.message && error.message.includes('Backend sync failed')) {
-                        console.log('Backend sync failed, but Firebase auth succeeded. Proceeding with login...');
-                        const role = sessionStorage.getItem('selectedRole');
-                        setTimeout(() => {
-                            if (role === 'staff') {
-                                window.location.href = "staff-portal.html";
-                            } else {
-                                window.location.href = "customer-portal.html";
-                            }
-                        }, 500);
-                    } else {
-                        showError('loginError', error.message || 'Login failed. Please try again.');
-                        showLoading('loginLoading', false);
-                        loginBtn.disabled = false;
-                    }
+                    if (error === "Email not verified") return;
+                    showError('loginError', error.message || 'Login failed. Please try again.');
+                    showLoading('loginLoading', false);
+                    loginBtn.disabled = false;
                 });
         });
 
@@ -578,7 +559,8 @@
                 .then(userCredential => {
                     const user = userCredential.user;
                     user.sendEmailVerification().then(() => {
-                        alert("Verification email sent! Please check your inbox.");
+                        alert("Verification email sent! Please check your inbox and verify before logging in.");
+                        sessionStorage.setItem('selectedRole', role);
                         firebase.auth().signOut(); // Sign out until verified
                         showLogin();
                     });
