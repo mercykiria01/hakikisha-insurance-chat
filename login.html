@@ -48,109 +48,250 @@
             cursor: pointer;
             text-decoration: underline;
         }
+        .login-methods {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .login-methods button {
+            width: auto;
+            padding: 0.5rem 1.2rem;
+            border-radius: 6px;
+            background: #e3f2fd;
+            color: #2c5aa0;
+            border: 1px solid #2c5aa0;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .login-methods button.active {
+            background: #2c5aa0;
+            color: #fff;
+        }
     </style>
+    <!-- Firebase App (core) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <!-- Firebase Auth -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 </head>
 <body>
-    <div class="login-container" id="loginBox">
-        <h2>Login</h2>
-        <form id="loginForm" method="POST">
-            <label for="login-email">Email</label>
-            <input type="email" id="login-email" name="email" required>
-            <label for="login-password">Password</label>
-            <input type="password" id="login-password" name="password" required>
-            <button type="submit">Login</button>
-        </form>
-        <span class="switch-link" onclick="showRegister()">Don't have an account? Register</span>
+    <div class="login-container">
+        <div class="login-methods">
+            <button id="emailTab" class="active" onclick="showEmailLogin()">Email/Password</button>
+            <button id="phoneTab" onclick="showPhoneLogin()">Phone (OTP)</button>
+        </div>
+
+        <!-- Email/Password Login/Register -->
+        <div id="emailLoginBox">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" name="email" required>
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" name="password" required>
+                <label for="login-role">Role</label>
+                <select id="login-role" name="role" required>
+                    <option value="customer">Customer</option>
+                    <option value="staff">Staff</option>
+                </select>
+                <button type="submit">Login</button>
+            </form>
+            <span class="switch-link" onclick="showRegister()">Don't have an account? Register</span>
+        </div>
+        <div id="registerBox" style="display:none;">
+            <h2>Register</h2>
+            <form id="registerForm">
+                <label for="register-email">Email</label>
+                <input type="email" id="register-email" name="email" required>
+                <label for="register-password">Password</label>
+                <input type="password" id="register-password" name="password" required>
+                <label for="register-role">Role</label>
+                <select id="register-role" name="role" required>
+                    <option value="customer">Customer</option>
+                    <option value="staff">Staff</option>
+                </select>
+                <button type="submit">Register</button>
+            </form>
+            <span class="switch-link" onclick="showLogin()">Already have an account? Login</span>
+        </div>
+
+        <!-- Phone/OTP Login -->
+        <div id="phoneLoginBox" style="display:none;">
+            <h2>Login/Register with Phone</h2>
+            <input type="text" id="phoneNumber" placeholder="+2547XXXXXXXX" required>
+            <div id="recaptcha-container"></div>
+            <button onclick="sendOTP()">Send OTP</button>
+            <input type="text" id="otp" placeholder="Enter OTP" style="display:none;">
+            <button onclick="verifyOTP()" style="display:none;" id="verifyBtn">Verify OTP</button>
+        </div>
     </div>
-    <div class="login-container" id="registerBox" style="display:none;">
-        <h2>Register</h2>
-        <form id="registerForm" method="POST" action="http://localhost:5000/register">
-            <label for="register-name">Name</label>
-            <input type="text" id="register-name" name="name" required>
-            <label for="register-email">Email</label>
-            <input type="email" id="register-email" name="email" required>
-            <label for="register-password">Password</label>
-            <input type="password" id="register-password" name="password" required>
-            <label for="register-role">Role</label>
-            <select id="register-role" name="role" required>
-                <option value="customer">Customer</option>
-                <option value="admin">Admin</option>
-            </select>
-            <button type="submit">Register</button>
-        </form>
-        <span class="switch-link" onclick="showLogin()">Already have an account? Login</span>
-    </div>
-    <div class="login-container" id="otpBox" style="display:none;">
-        <h2>Verify OTP</h2>
-        <form id="otpForm" method="POST">
-            <label for="otp-email">Email</label>
-            <input type="email" id="otp-email" name="email" required>
-            <label for="otp-code">OTP Code</label>
-            <input type="text" id="otp-code" name="otp" required>
-            <button type="submit">Verify</button>
-        </form>
-        <span class="switch-link" onclick="showLogin()">Back to Login</span>
-    </div>
+
     <script>
+        // Firebase config (replace with your own)
+        const firebaseConfig = {
+          apiKey: "AIzaSyBRSLstqmCFNfEOvmohnQCqR1UgbmaYibs",
+          authDomain: "hakikisha-auth.firebaseapp.com",
+          projectId: "hakikisha-auth",
+          storageBucket: "hakikisha-auth.firebasestorage.app",
+          messagingSenderId: "1038262027971",
+          appId: "1:1038262027971:web:cfdb62de91201597570476"
+          // ...other config...
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        // Tab switching logic
+        function showEmailLogin() {
+            document.getElementById('emailLoginBox').style.display = 'block';
+            document.getElementById('registerBox').style.display = 'none';
+            document.getElementById('phoneLoginBox').style.display = 'none';
+            document.getElementById('emailTab').classList.add('active');
+            document.getElementById('phoneTab').classList.remove('active');
+        }
+        function showPhoneLogin() {
+            document.getElementById('emailLoginBox').style.display = 'none';
+            document.getElementById('registerBox').style.display = 'none';
+            document.getElementById('phoneLoginBox').style.display = 'block';
+            document.getElementById('emailTab').classList.remove('active');
+            document.getElementById('phoneTab').classList.add('active');
+        }
         function showRegister() {
-            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('emailLoginBox').style.display = 'none';
             document.getElementById('registerBox').style.display = 'block';
-            document.getElementById('otpBox').style.display = 'none';
         }
         function showLogin() {
             document.getElementById('registerBox').style.display = 'none';
-            document.getElementById('loginBox').style.display = 'block';
-            document.getElementById('otpBox').style.display = 'none';
-        }
-        function showOtp() {
-            document.getElementById('loginBox').style.display = 'none';
-            document.getElementById('registerBox').style.display = 'none';
-            document.getElementById('otpBox').style.display = 'block';
+            document.getElementById('emailLoginBox').style.display = 'block';
         }
 
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        // Email/Password Login
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
-
-            const response = await fetch('http://localhost:5000/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
-            const result = await response.json();
-
-            if (response.ok && result.message === "Login successful") {
-                window.location.href = "customer-portal.html";
-            } else if (response.status === 403 && result.error && result.error.includes("verify")) {
-                // Show OTP box if verification is required
-                showOtp();
-                document.getElementById('otp-email').value = email; // prefill email
-            } else {
-                alert(result.error || "Login failed");
-            }
+            const role = document.getElementById('login-role').value;
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    sessionStorage.setItem('selectedRole', role);
+                    // Immediately sync and redirect
+                    const user = userCredential.user;
+                    fetch('https://localhost:3000/api/customer-auth', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        firebase_uid: user.uid,
+                        email: user.email || null,
+                        phone: user.phoneNumber || null,
+                        role: role
+                      })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                      if (role === 'staff') {
+                        window.location.href = "staff-portal.html";
+                      } else {
+                        window.location.href = "customer-portal.html";
+                      }
+                    });
+                })
+                .catch(error => {
+                    alert(error.message);
+                });
         });
 
-        document.getElementById('otpForm').addEventListener('submit', async function(e) {
+        // Email/Password Register
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const email = document.getElementById('otp-email').value;
-            const otp = document.getElementById('otp-code').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const role = document.getElementById('register-role').value;
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    sessionStorage.setItem('selectedRole', role);
+                    alert("Registration successful! You can now log in.");
+                    showLogin();
+                })
+                .catch(error => {
+                    alert(error.message);
+                });
+        });
 
-            const response = await fetch('http://localhost:5000/verify-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, otp })
-            });
-
-            const result = await response.json();
-
-            if (response.ok && result.message === "Verification successful") {
-                alert("Verification successful! You can now log in.");
-                showLogin();
-            } else {
-                alert(result.error || "Verification failed");
+        // Phone/OTP Login/Register
+        let confirmationResult;
+        function sendOTP() {
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            // Only prompt for role if not already set
+            let role = sessionStorage.getItem('selectedRole');
+            if (!role) {
+                role = prompt("Are you a 'customer' or 'staff'? Type exactly: customer or staff");
+                if (role !== "customer" && role !== "staff") {
+                    alert("Invalid role. Please type 'customer' or 'staff'.");
+                    return;
+                }
+                sessionStorage.setItem('selectedRole', role);
             }
+
+            // Disable button to prevent multiple clicks
+            const sendBtn = event.target;
+            sendBtn.disabled = true;
+
+            // Only create reCAPTCHA if not already created
+            if (!window.recaptchaVerifier) {
+                window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+                    'size': 'normal',
+                    'callback': function(response) {
+                        // reCAPTCHA solved
+                    }
+                });
+            }
+
+            firebase.auth().signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
+                .then(function(result) {
+                    confirmationResult = result;
+                    document.getElementById('otp').style.display = 'inline';
+                    document.getElementById('verifyBtn').style.display = 'inline';
+                    alert('OTP sent!');
+                }).catch(function(error) {
+                    alert(error.message);
+                    // Re-enable button if error
+                    sendBtn.disabled = false;
+                    // Optionally clear the role if you want to prompt again on next try
+                    // sessionStorage.removeItem('selectedRole');
+                });
+        }
+        function verifyOTP() {
+            const otp = document.getElementById('otp').value;
+            confirmationResult.confirm(otp).then(function(result) {
+                // Success: onAuthStateChanged will handle backend sync and redirect
+                alert('Phone verified! Login successful.');
+            }).catch(function(error) {
+                alert('Invalid OTP');
+            });
+        }
+
+        // Auth state change listener
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user) {
+            // Get role from sessionStorage (set during login/register/OTP)
+            const role = sessionStorage.getItem('selectedRole') || 'customer';
+            fetch('https://localhost:3000/api/customer-auth', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                firebase_uid: user.uid,
+                email: user.email || null,
+                phone: user.phoneNumber || null,
+                role: role
+              })
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (role === 'staff') {
+                window.location.href = "staff-portal.html";
+              } else {
+                window.location.href = "customer-portal.html";
+              }
+            });
+          }
         });
     </script>
 </body>

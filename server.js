@@ -450,5 +450,26 @@ app.post('/webhook', async (req, res) => {
   }
 });
 
+// Example: CustomerAuth sync endpoint
+app.post('/api/customer-auth', async (req, res) => {
+  const { firebase_uid, email, phone } = req.body;
+  try {
+    // Check if user exists by Firebase UID
+    const result = await sql.query`SELECT * FROM CustomerAuth WHERE AuthID = ${firebase_uid}`;
+    if (result.recordset.length === 0) {
+      // Insert new user (fill in other fields as needed)
+      await sql.query`
+        INSERT INTO CustomerAuth (AuthID, Email, Phone, CreatedDate)
+        VALUES (${firebase_uid}, ${email}, ${phone}, GETDATE())
+      `;
+    }
+    // Optionally, fetch and return user info
+    const user = await sql.query`SELECT * FROM CustomerAuth WHERE AuthID = ${firebase_uid}`;
+    res.json({ success: true, user: user.recordset[0] });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
