@@ -3,264 +3,565 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hakikisha Insurance - Protect What Matters Most</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Hakikisha Insurance</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* --- General Layout and Colors (Assuming your main styles are in style.css) --- */
+
+        /* --- New Chat Widget Styles --- */
+        
+        /* The main container for the floating elements (button and window) */
+        .gaia-assistant-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        /* The Custom Floating Button (Avatar + Text Info + Action Button) */
+        .gaia-floating-button {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 15px;
+            width: 300px; /* Fixed width to contain text */
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .gaia-floating-button:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .gaia-avatar-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .gaia-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 15px;
+            border: 3px solid #007bff; /* Primary color border for emphasis */
+            flex-shrink: 0;
+        }
+
+        .gaia-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gaia-text-info {
+            line-height: 1.4;
+        }
+
+        .gaia-agent-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #192C46; /* Dark text for name */
+            margin-bottom: 2px;
+        }
+
+        .gaia-agent-role {
+            font-size: 0.9rem;
+            color: #007bff; /* Accent color for role */
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .gaia-agent-goal {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .gaia-action-button {
+            /* This mimics the "Ask Hakikisha Assistant" button */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #4CAF50; /* Green/Success color for the action */
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 1rem;
+        }
+
+        .gaia-action-button:hover {
+            background-color: #45a049;
+        }
+        
+        /* Styles for the Chat Window to match the original style but hidden by default */
+        .chat-window {
+            display: none; /* Initially hidden */
+            position: absolute;
+            bottom: 80px; /* Position above the button */
+            right: 0;
+            width: 320px; /* Slightly wider than the button for content */
+            height: 400px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background-color: #007bff; /* Match primary color */
+            color: white;
+            padding: 15px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-body {
+            flex-grow: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background-color: #f7f7f7;
+        }
+        
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+        
+        #chatInput {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            margin-right: 10px;
+            outline: none;
+        }
+        
+        .chat-send {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+
+        .chat-send:hover {
+            background-color: #0056b3;
+        }
+        
+        .chat-message {
+            display: flex;
+            margin-bottom: 10px;
+            max-width: 80%;
+        }
+
+        .bot-message {
+            justify-content: flex-start;
+        }
+        
+        .bot-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #007bff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        
+        .message-content {
+            background-color: white;
+            padding: 10px 15px;
+            border-radius: 15px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            font-size: 0.95rem;
+        }
+
+        .quick-options {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .quick-option {
+            background-color: #eee;
+            border: 1px solid #ddd;
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background-color 0.2s;
+        }
+
+        .quick-option:hover {
+            background-color: #ddd;
+        }
+        
+        /* Utility class to show/hide the chat window (toggled by JS) */
+        .chat-window-open {
+            display: flex;
+        }
+    </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="nav-container">
-            <div class="logo">
-                <span class="logo-emoji">👌</span>
-                <span class="logo-title">Hakikisha Insurance</span>
-            </div>
-            <nav>
-                <ul class="nav-menu">
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#services">Insurance</a></li>
-                    <li><a href="#claims">Claims</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                </ul>
-            </nav>
-            <div class="cta-buttons">
-                <a href="#quote" class="btn-secondary">Get Quote</a>
-                <a href="login.html" class="btn-primary"> Login</a>
-            </div>
+
+    <header>
+        <div class="logo">
+            <span style="font-size: 1.5rem;">👌</span>
+            <strong>Hakikisha Insurance</strong>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#services">Insurance</a></li>
+                <li><a href="#">Claims</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="header-actions">
+            <a href="#quote" class="btn-primary">Get Quote</a>
+            <a href="#" class="btn-secondary">Login</a>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="floating-elements">
-            <div class="floating-icon">🏠</div>
-            <div class="floating-icon">🚗</div>
-            <div class="floating-icon">❤️</div>
-            <div class="floating-icon">🏢</div>
-        </div>
-        
-        <div class="hero-container">
-            <div class="hero-content">
-                <h1 class="hero-title">Protect What Matters Most</h1>
-                <p class="hero-subtitle">
-                    Comprehensive insurance coverage tailored to your needs. From auto to home, life to business - we've got you covered with affordable premiums and exceptional service.
-                </p>
-                <div class="hero-buttons">
-                    <a href="#quote" class="btn-primary">Get Free Quote</a>
-                    <a href="#services" class="btn-secondary">Explore Coverage</a>
-                </div>
-            </div>
-            
-            <div class="hero-visual">
-                <div class="insurance-card">
-                    <div class="card-header">
-                        <div class="card-icon">🛡️</div>
-                        <div class="card-title">Complete Protection</div>
-                    </div>
-                    <ul class="coverage-list">
-                        <li>Auto Insurance</li>
-                        <li>Home Insurance</li>
-                        <li>Life Insurance</li>
-                        <li>Business Insurance</li>
-                        <li>Health Insurance</li>
-                    </ul>
-                    <div style="text-align: center;">
-                        <div style="font-size: 2rem; color: #4CAF50; font-weight: bold;">
-                            From KES 5,000/month
-                        </div>
-                        <div style="color: #666; font-size: 0.9rem;">
-                            Trusted by 50,000+ families
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="trust-bar">
-            <div class="trust-item">
-                <span>⭐</span>
-                <span>4.9/5 Rating</span>
-            </div>
-            <div class="trust-item">
-                <span>🏆</span>
-                <span>Licensed & Regulated</span>
-            </div>
-            <div class="trust-item">
-                <span>📞</span>
-                <span>24/7 Support</span>
-            </div>
-            <div class="trust-item">
-                <span>⚡</span>
-                <span>Instant Quotes</span>
-            </div>
-        </div>
-    </section>
+    
+<section class="hero" id="home">
+    <div class="floating-elements">
+        <div class="floating-icon">🏠</div>
+        <div class="floating-icon">🚗</div>
+        <div class="floating-icon">❤️</div>
+        <div class="floating-icon">🏢</div>
+    </div>
 
-    <!-- Services Section -->
-    <section class="services" id="services">
-        <div class="services-container">
-            <h2 class="section-title">Our Insurance Services</h2>
-            <div class="services-grid">
-                <div class="service-card" onclick="openChat('auto')">
-                    <div class="service-icon">
-                        <img 
-                            src="https://static.vecteezy.com/system/resources/previews/027/386/303/non_2x/modern-white-car-driving-in-the-park-background-luxury-city-car-wallpaper-photo.jpg" 
-                            alt="Car Icon" 
-                            style="width:48px;height:48px;object-fit:cover;contain-intrinsic-size:3000px 1500px;">
-                    </div>
-                    <h3 class="service-title">Auto Insurance</h3>
-                    <p class="service-description">
-                        Comprehensive coverage for your vehicle with competitive rates and quick claims processing.
-                    </p>
-                    <a href="auto-insurance.html" class="btn-primary">Learn More</a>
-                </div>
-                
-                <div class="service-card" onclick="openChat('home')">
-                    <div class="service-icon">🏠</div>
-                    <h3 class="service-title">Home Insurance</h3>
-                    <p class="service-description">
-                        Protect your home and belongings with our comprehensive homeowners insurance policies.
-                    </p>
-                    <a href="home-insurance.html" class="btn-primary">Learn More</a>
-                </div>
-                
-                <div class="service-card" onclick="openChat('life')">
-                    <div class="service-icon">❤️</div>
-                    <h3 class="service-title">Life Insurance</h3>
-                    <p class="service-description">
-                        Secure your family's future with our flexible life insurance plans and coverage options.
-                    </p>
-                    <a href="#" class="btn-primary">Learn More</a>
-                </div>
-                
-                <div class="service-card" onclick="openChat('business')">
-                    <div class="service-icon">🏢</div>
-                    <h3 class="service-title">Business Insurance</h3>
-                    <p class="service-description">
-                        Comprehensive business protection including liability, property, and workers' compensation.
-                    </p>
-                    <a href="#" class="btn-primary">Learn More</a>
-                </div>
-                
-                <div class="service-card" onclick="openChat('health')">
-                    <div class="service-icon">🏥</div>
-                    <h3 class="service-title">Health Insurance</h3>
-                    <p class="service-description">
-                        Quality healthcare coverage with extensive network of providers and wellness programs.
-                    </p>
-                    <a href="#" class="btn-primary">Learn More</a>
-                </div>
-                
-                <div class="service-card" onclick="openChat('travel')">
-                    <div class="service-icon">✈️</div>
-                    <h3 class="service-title">Travel Insurance</h3>
-                    <p class="service-description">
-                        Travel with confidence with our comprehensive travel insurance and emergency assistance.
-                    </p>
-                    <a href="#" class="btn-primary">Learn More</a>
-                </div>
+    <div class="hero-container">
+        <div class="hero-content">
+            <h1 class="hero-title">Protect What Matters Most</h1>
+            <p class="hero-subtitle">
+                Comprehensive insurance coverage tailored to your needs. From auto to home, life to business - we've got you covered with affordable premiums and exceptional service.
+            </p>
+            <div class="hero-buttons">
+                <a href="#quote" class="btn-primary">Get Free Quote</a>
+                <a href="#services" class="btn-secondary">Explore Coverage</a>
             </div>
         </div>
-    </section>
 
-    <!-- About Section -->
-    <section class="about" id="about">
-        <div class="about-container about-card">
-            <h2 class="section-title">About Hakikisha Insurance</h2>
-            <div class="about-placecard">
-                <strong>Who We Are</strong><br>
-                Hakikisha Insurance is a leading provider of comprehensive insurance solutions in Kenya. With years of experience in the industry, we are committed to protecting what matters most to you—your family, your assets, and your future.
-            </div>
-            <p>
-                <strong>Our Mission</strong><br>
-                To deliver affordable, reliable, and innovative insurance products that give our clients peace of mind and financial security.
-            </p>
-            <p>
-                <strong>Our Vision</strong><br>
-                To be the most trusted insurance partner in the region, known for exceptional service and customer satisfaction.
-            </p>
-            <p>
-                <strong>Why Choose Us?</strong>
-                <ul>
-                    <li>Licensed and regulated by the Insurance Regulatory Authority</li>
-                    <li>24/7 customer support and claims assistance</li>
-                    <li>Fast, transparent, and hassle-free claims process</li>
-                    <li>Flexible coverage options for individuals, families, and businesses</li>
-                    <li>Trusted by over 50,000 families and businesses</li>
+        <div class="hero-visual">
+            <div class="insurance-card">
+                <div class="card-header">
+                    <div class="card-icon">🛡️</div>
+                    <div class="card-title">Complete Protection</div>
+                </div>
+                <ul class="coverage-list">
+                    <li>Auto Insurance</li>
+                    <li>Home Insurance</li>
+                    <li>Life Insurance</li>
+                    <li>Business Insurance</li>
+                    <li>Health Insurance</li>
                 </ul>
-            </p>
-            <p>
-                <strong>Our Values</strong>
-                <ul>
-                    <li>Integrity</li>
-                    <li>Customer Focus</li>
-                    <li>Innovation</li>
-                    <li>Excellence</li>
-                    <li>Community</li>
-                </ul>
-            </p>
-            <p>
-                <strong>Contact Us</strong><br>
-                Have questions? Reach out to our friendly team at <a href="mailto:info@hakikishainsurance.co.ke">info@hakikishainsurance.co.ke</a> or call us at 0800-000-000.
-            </p>
-        </div>
-    </section>
-
-    <!-- Chatbot Widget -->
-    <div class="chatbot-widget">
-        <button class="chat-toggle" onclick="toggleChat()">
-            🤖
-            <span class="notification-badge" id="chatNotification">1</span>
-        </button>
-        
-        <div class="chat-window" id="chatWindow">
-            <div class="chat-header">
-                <div>
-                    <strong>Insurance Assistant</strong>
-                    <div style="font-size: 0.8rem; opacity: 0.8;">Online • Typically replies instantly</div>
-                </div>
-                <button onclick="toggleChat()" style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;">✕</button>
-            </div>
-            
-            <div class="chat-body" id="chatBody">
-                <div class="chat-message bot-message">
-                    <div class="message-avatar bot-avatar">🤖</div>
-                    <div class="message-content">
-                        👋 Hi there! I'm your AI insurance assistant. I can help you with:
-                        <div class="quick-options">
-                            <button class="quick-option" onclick="sendMessage('Get a quote')">Get Quote</button>
-                            <button class="quick-option" onclick="sendMessage('Coverage info')">Coverage Info</button>
-                            <button class="quick-option" onclick="sendMessage('Find agent')">Find Agent</button>
-                            <button class="quick-option" onclick="sendMessage('File claim')">File Claim</button>
-                        </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; color: #4CAF50; font-weight: bold;">
+                        From KES 5,000/month
+                    </div>
+                    <div style="color: #666; font-size: 0.9rem;">
+                        Trusted by 50,000+ families
                     </div>
                 </div>
-            </div>
-            
-            <div class="chat-input">
-                <input type="text" id="chatInput" placeholder="Ask me about insurance..." onkeypress="handleEnter(event)">
-                <button class="chat-send" onclick="sendUserMessage()">
-                    ➤
-                </button>
             </div>
         </div>
     </div>
 
-    <script src="main.js"></script>
-    <script>
-        function toggleChat() {
-            const chatWindow = document.getElementById('chatWindow');
-            if (chatWindow.style.display === 'block') {
-                chatWindow.style.display = 'none';
-            } else {
-                chatWindow.style.display = 'block';
-            }
+    <div class="trust-bar">
+        <div class="trust-item">
+            <span>⭐</span>
+            <span>4.9/5 Rating</span>
+        </div>
+        <div class="trust-item">
+            <span>🏆</span>
+            <span>Licensed & Regulated</span>
+        </div>
+        <div class="trust-item">
+            <span>📞</span>
+            <span>24/7 Support</span>
+        </div>
+        <div class="trust-item">
+            <span>⚡</span>
+            <span>Instant Quotes</span>
+        </div>
+    </div>
+</section>
+
+<section class="services" id="services">
+    <div class="services-container">
+        <h2 class="section-title">Our Insurance Services</h2>
+        <div class="services-grid">
+            <div class="service-card" onclick="openChat('auto')">
+                <div class="service-icon">
+                    <img 
+                        src="https://static.vecteezy.com/system/resources/previews/027/386/303/non_2x/modern-white-car-driving-in-the-park-background-luxury-city-car-wallpaper-photo.jpg" 
+                        alt="Car Icon" 
+                        style="width:48px;height:48px;object-fit:cover;contain-intrinsic-size:3000px 1500px;">
+                </div>
+                <h3 class="service-title">Auto Insurance</h3>
+                <p class="service-description">
+                    Comprehensive coverage for your vehicle with competitive rates and quick claims processing.
+                </p>
+                <a href="auto-insurance.html" class="btn-primary">Learn More</a>
+            </div>
+
+            <div class="service-card" onclick="openChat('home')">
+                <div class="service-icon">🏠</div>
+                <h3 class="service-title">Home Insurance</h3>
+                <p class="service-description">
+                    Protect your home and belongings with our comprehensive homeowners insurance policies.
+                </p>
+                <a href="home-insurance.html" class="btn-primary">Learn More</a>
+            </div>
+
+            <div class="service-card" onclick="openChat('life')">
+                <div class="service-icon">❤️</div>
+                <h3 class="service-title">Life Insurance</h3>
+                <p class="service-description">
+                    Secure your family's future with our flexible life insurance plans and coverage options.
+                </p>
+                <a href="#" class="btn-primary">Learn More</a>
+            </div>
+
+            <div class="service-card" onclick="openChat('business')">
+                <div class="service-icon">🏢</div>
+                <h3 class="service-title">Business Insurance</h3>
+                <p class="service-description">
+                    Comprehensive business protection including liability, property, and workers' compensation.
+                </p>
+                <a href="#" class="btn-primary">Learn More</a>
+            </div>
+
+            <div class="service-card" onclick="openChat('health')">
+                <div class="service-icon">🏥</div>
+                <h3 class="service-title">Health Insurance</h3>
+                <p class="service-description">
+                    Quality healthcare coverage with extensive network of providers and wellness programs.
+                </p>
+                <a href="#" class="btn-primary">Learn More</a>
+            </div>
+
+            <div class="service-card" onclick="openChat('travel')">
+                <div class="service-icon">✈️</div>
+                <h3 class="service-title">Travel Insurance</h3>
+                <p class="service-description">
+                    Travel with confidence with our comprehensive travel insurance and emergency assistance.
+                </p>
+                <a href="#" class="btn-primary">Learn More</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about" id="about">
+    <div class="about-container about-card">
+        <h2 class="section-title">About Hakikisha Insurance</h2>
+        <div class="about-placecard">
+            <strong>Who We Are</strong><br>
+            Hakikisha Insurance is a leading provider of comprehensive insurance solutions in Kenya. With years of experience in the industry, we are committed to protecting what matters most to you—your family, your assets, and your future.
+        </div>
+        <p>
+            <strong>Our Mission</strong><br>
+            To deliver affordable, reliable, and innovative insurance products that give our clients peace of mind and financial security.
+        </p>
+        <p>
+            <strong>Our Vision</strong><br>
+            To be the most trusted insurance partner in the region, known for exceptional service and customer satisfaction.
+        </p>
+        <p>
+            <strong>Why Choose Us?</strong>
+            <ul>
+                <li>Licensed and regulated by the Insurance Regulatory Authority</li>
+                <li>24/7 customer support and claims assistance</li>
+                <li>Fast, transparent, and hassle-free claims process</li>
+                <li>Flexible coverage options for individuals, families, and businesses</li>
+                <li>Trusted by over 50,000 families and businesses</li>
+            </ul>
+        </p>
+        <p>
+            <strong>Our Values</strong>
+            <ul>
+                <li>Integrity</li>
+                <li>Customer Focus</li>
+                <li>Innovation</li>
+                <li>Excellence</li>
+                <li>Community</li>
+            </ul>
+        </p>
+        <p>
+            <strong>Contact Us</strong><br>
+            Have questions? Reach out to our friendly team at <a href="mailto:info@hakikishainsurance.co.ke">info@hakikishainsurance.co.ke</a> or call us at 0800-000-000.
+        </p>
+    </div>
+</section>
+
+<div class="gaia-assistant-container">
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <div>
+                <strong>Hakikisha Assistant</strong>
+                <div style="font-size: 0.8rem; opacity: 0.9;">AI Insurance Guide</div>
+            </div>
+            <button onclick="toggleChat()" style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; padding: 0;">✕</button>
+        </div>
+
+        <div class="chat-body" id="chatBody">
+            <div class="chat-message bot-message">
+                <div class="message-avatar bot-avatar">
+                    <img src="https://i.imgur.com/KzDqF5r.png" alt="Hakikisha Assistant Avatar" style="width: 100%; height: 100%; border-radius: 50%;">
+                </div>
+                <div class="message-content">
+                    👋 Hi there! I'm your **Hakikisha Assistant**. I can help you with policy information, quotes, and support.
+                    <div class="quick-options">
+                        <button class="quick-option" onclick="sendMessage('Get a quote')">Get Quote</button>
+                        <button class="quick-option" onclick="sendMessage('Coverage info')">Coverage Info</button>
+                        <button class="quick-option" onclick="sendMessage('File claim')">File Claim</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="Ask me about insurance..." onkeypress="handleEnter(event)">
+            <button class="chat-send" onclick="sendUserMessage()">
+                ➤
+            </button>
+        </div>
+    </div>
+    
+    <div class="gaia-floating-button" id="gaiaFloatingButton">
+        <div class="gaia-avatar-info">
+            <div class="gaia-avatar">
+                <img src="https://i.imgur.com/KzDqF5r.png" alt="Hakikisha Assistant Avatar"> 
+            </div>
+            <div class="gaia-text-info">
+                <div class="gaia-agent-name">Hakikisha Assistant</div>
+                <div class="gaia-agent-role">Your AI Insurance Guide</div>
+                <div class="gaia-agent-goal">Goal: **Answer policy & provide instant support.**</div>
+            </div>
+        </div>
+        <button class="gaia-action-button" onclick="toggleChat()">
+            Ask Hakikisha Assistant
+        </button>
+    </div>
+</div>
+
+<script src="main.js"></script>
+<script>
+    const chatWindow = document.getElementById('chatWindow');
+    const gaiaFloatingButton = document.getElementById('gaiaFloatingButton');
+    
+    function toggleChat() {
+        // Toggle the visibility of the chat window
+        chatWindow.classList.toggle('chat-window-open');
+        
+        // Hide the floating button when the chat window is open
+        if (chatWindow.classList.contains('chat-window-open')) {
+            gaiaFloatingButton.style.display = 'none';
+        } else {
+            gaiaFloatingButton.style.display = 'flex';
+        }
+    }
+
+    // Placeholder for the main functions of the chatbot
+    function sendMessage(message) {
+        // Functionality to send a pre-defined message
+        // For simulation, we'll just log it
+        console.log("Quick option clicked: " + message);
+        // You would typically call a function to simulate a user message here
+        appendMessage(message, 'user');
+        simulateBotResponse();
+    }
+    
+    function sendUserMessage() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        if (message) {
+            appendMessage(message, 'user');
+            input.value = '';
+            simulateBotResponse();
+        }
+    }
+
+    function handleEnter(event) {
+        if (event.key === 'Enter') {
+            sendUserMessage();
+        }
+    }
+
+    function appendMessage(text, sender) {
+        const chatBody = document.getElementById('chatBody');
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('chat-message');
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.classList.add('message-content');
+        contentDiv.innerHTML = text; // Use innerHTML for rich content/quick options
+
+        if (sender === 'user') {
+            messageDiv.style.justifyContent = 'flex-end';
+            contentDiv.style.backgroundColor = '#007bff';
+            contentDiv.style.color = 'white';
+            messageDiv.style.maxWidth = '70%'; // User messages can be slightly shorter
+        } else if (sender === 'bot') {
+            messageDiv.classList.add('bot-message');
+            const avatarDiv = document.createElement('div');
+            avatarDiv.classList.add('message-avatar', 'bot-avatar');
+            avatarDiv.innerHTML = '<img src="https://i.imgur.com/KzDqF5r.png" alt="Bot Avatar" style="width: 100%; height: 100%; border-radius: 50%;">';
+            messageDiv.appendChild(avatarDiv);
         }
 
-        // Optionally, initialize chat window as hidden on page load
-        window.onload = function() {
-            document.getElementById('chatWindow').style.display = 'none';
-        };
-    </script>
+        messageDiv.appendChild(contentDiv);
+        chatBody.appendChild(messageDiv);
+        
+        // Scroll to the latest message
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    
+    function simulateBotResponse() {
+        setTimeout(() => {
+            const response = "Thank you! I'm checking the details now. How about I connect you to a live agent for your policy details?";
+            appendMessage(response, 'bot');
+        }, 1000);
+    }
+
+
+    // Initially hide the chat window and keep the floating button visible
+    window.onload = function() {
+        chatWindow.classList.remove('chat-window-open');
+        gaiaFloatingButton.style.display = 'flex';
+    };
+</script>
+
 </body>
 </html>
