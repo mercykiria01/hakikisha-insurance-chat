@@ -164,72 +164,210 @@
         </div>
     </section>
 
-    <!-- About Section -->
-    <section class="about" id="about" role="region" aria-labelledby="about-heading">
-  <h2 id="about-heading" class="section-title">About Hakikisha Insurance</h2>
+  <!-- About Section -->
+    <section class="about" id="about">
+        <div class="about-container">
+            <h2 class="section-title">About Hakikisha Insurance</h2>
+            
+            <div class="about-grid">
+                <!-- Left Column -->
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Who We Are</h3>
+                    <p>Leading provider of comprehensive insurance solutions. Protecting your family, assets, and future for years.</p>
+                </div>
 
-  <div class="about-grid-container">
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3>Our Mission</h3>
+                    <p>Deliver affordable, reliable, and innovative insurance products for peace of mind, known for exceptional service & financial security.</p>
+                </div>
 
-    <div class="about-column-left">
-      
-      <div class="content-block">
-        <div class="icon-header">
-          <i class="fas fa-globe"></i> 
-          <span class="block-title">Who We Are</span>
+                <!-- Right Column -->
+                <div class="about-card">
+                    <h3>Why Choose Us?</h3>
+                    <ul class="about-list">
+                        <li><i class="fas fa-shield-alt"></i> Licensed & Regulated</li>
+                        <li><i class="fas fa-check"></i> 24/7 Support and claims assistance</li>
+                    </ul>
+                </div>
+
+                <div class="about-card">
+                    <h3>Our Values</h3>
+                    <ul class="about-list">
+                        <li><i class="fas fa-gem"></i> Integrity</li>
+                        <li><i class="fas fa-check"></i> Fast, Transparent, and hassle-free process</li>
+                        <li>Flexible - Trusted by over 5000+ Families</li>
+                        <li>Excellence</li>
+                        <li>Community</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Contact Section -->
+            <div class="about-contact">
+                <div class="contact-info">
+                    <i class="fas fa-phone"></i>
+                    <div>
+                        <strong>Contact Us</strong>
+                        <p>0800-000-000</p>
+                    </div>
+                </div>
+                <div class="contact-info">
+                    <i class="fas fa-envelope"></i>
+                    <a href="mailto:info@hakikishainsurance.co.ke">info@hakikishainsurance.co.ke</a>
+                    <span> or 080-000-000</span>
+                </div>
+            </div>
         </div>
-        <p>
-          Leading provider of comprehensive insurance solutions. Protecting your family, assets, and future for years.
-        </p>
-      </div>
+    </section>
 
-      <div class="content-block">
-        <div class="icon-header">
-          <i class="fas fa-trophy"></i> 
-          <span class="block-title">Our Mission</span>
-        </div>
-        <p>
-          Deliver affordable, reliable, and innovative insurance products for peace of mind, known for exceptional service & financial security.
-        </p>
-      </div>
-    </div>
+    <style>
+        .about {
+            padding: 80px 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
 
-    <div class="about-column-right">
+        .about-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-      <div class="content-block reason-block">
-        <span class="block-title">Why Choose Us?</span>
-        <ul class="reason-list">
-          <li><i class="fas fa-shield-alt"></i> Licensed & Regulated</li>
-          <li><i class="fas fa-check"></i> 24/7 Support and claims assistance</li>
-        </ul>
-      </div>
-      
-      <hr class="separator-line">
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
 
-      <div class="content-block value-block">
-        <span class="block-title">Our Values</span>
-        <ul class="value-list">
-          <li><i class="fas fa-gem"></i> Integrity</li>
-          <li><i class="fas fa-check"></i> Fast, Transparent, and hassle-free process</li>
-          <li><strong>Flexible</strong> by over 5000+ Families</li>
-          <li>Excellence</li>
-          <li>Community</li>
-        </ul>
-      </div>
-    </div>
-  </div>
+        .about-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
 
-  <div class="contact-row">
-    <div class="contact-item">
-      <i class="fas fa-phone"></i> 
-      <strong>Contact Us</strong>
-      <span class="contact-details">0800-000-000</span>
-    </div>
-    <div class="contact-item">
-      <i class="fas fa-envelope"></i> 
-      <a href="mailto:info@hakikishainsurance.co.ke">info@hakikishainsurance.co.ke</a>
-    </div>
-  </div>
-</section>
+        .about-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .about-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: white;
+        }
+
+        .about-card h3 {
+            font-size: 1.4rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .about-card p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .about-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .about-list li {
+            padding: 10px 0;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .about-list li:last-child {
+            border-bottom: none;
+        }
+
+        .about-list i {
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .about-contact {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 50px;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .contact-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .contact-info i {
+            font-size: 24px;
+            color: #667eea;
+        }
+
+        .contact-info strong {
+            display: block;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .contact-info p {
+            margin: 5px 0 0 0;
+            color: #666;
+        }
+
+        .contact-info a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .about-contact {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .contact-info {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
 
 <div class="chatbot-widget">
     
