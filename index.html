@@ -474,164 +474,62 @@
         }
     </style>
 
-<div class="chatbot-widget">
-    
-    <button class="chat-toggle avatar-toggle" onclick="toggleChat()">
-        <img src="https://i.imgur.com/KzDqF5r.png" alt="Hakikisha Assistant Avatar" class="avatar-img">
-        <span class="notification-badge" id="chatNotification">1</span>
-    </button>
-    
-    <div class="chat-window" id="chatWindow">
-        <div class="chat-header">
-            <div>
-                <strong>Hakikisha Assistant</strong>
-                <div style="font-size: 0.8rem; opacity: 0.8;">Online • AI Insurance Guide</div>
-            </div>
-            <button onclick="toggleChat()" style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;">✕</button>
-        </div>
-        
-        <div class="chat-body" id="chatBody">
-            <div class="chat-message bot-message">
-                <div class="message-avatar bot-avatar">
-                    <img src="https://i.imgur.com/KzDqF5r.png" alt="Bot Avatar" style="width: 100%; height: 100%; border-radius: 50%;">
-                </div>
-                <div class="message-content">
-                    👋 Hi there! I'm your **Hakikisha Assistant**. How can I help you today?
-                    <div class="quick-options">
-                        <button class="quick-option" onclick="sendMessage('Get a quote')">Get Quote</button>
-                        <button class="quick-option" onclick="sendMessage('Coverage info')">Coverage Info</button>
-                        <button class="quick-option" onclick="sendMessage('Find agent')">Find Agent</button>
-                        <button class="quick-option" onclick="sendMessage('File claim')">File Claim</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="chat-input">
-            <input type="text" id="chatInput" placeholder="Ask me about insurance..." onkeypress="handleEnter(event)">
-            <button class="chat-send" onclick="sendUserMessage()">
-                ➤
-            </button>
-        </div>
-    </div>
-</div>
-    <style>
-/* ---------------------------------- */
-/* --- New Avatar Button Styling --- */
-/* ---------------------------------- */
-
-/* Position the main widget container */
-.chatbot-widget {
+<!-- Chatbot Avatar Floating Button -->
+<style>
+  #chatbot-avatar {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
-}
-
-/* Style the avatar button container */
-.chat-toggle.avatar-toggle {
-    background: #007bff; /* Background color behind the avatar */
-    border: none;
-    padding: 0;
-    width: 60px; /* Define size of the entire button area */
-    height: 60px;
+    bottom: 24px;
+    right: 24px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
+    background: url('https://cdn-icons-png.flaticon.com/512/4712/4712109.png') no-repeat center/cover;
     cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s, box-shadow 0.2s;
-    overflow: visible; /* Important to see the badge */
-}
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 9999;
+  }
 
-.chat-toggle.avatar-toggle:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-}
+  #chatbot-window {
+    position: fixed;
+    bottom: 100px;
+    right: 24px;
+    width: 380px;
+    height: 520px;
+    border-radius: 20px;
+    border: none;
+    display: none;
+    z-index: 10000;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+</style>
 
-/* Style the image inside the button */
-.chat-toggle .avatar-img {
-    width: 100%; /* Image fills the button */
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid white; /* White border for emphasis */
-}
+<div id="chatbot-avatar" title="Chat with Hakikisha Assistant"></div>
+<iframe
+  id="chatbot-window"
+  allow="microphone;"
+  src="https://bot.dialogflow.com/5b088d35-3f3e-443e-8fb4-3a32500b63d3">
+</iframe>
 
-/* Style the notification badge */
-.notification-badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: #ff0000; /* Red color */
-    color: white;
-    border-radius: 50%;
-    padding: 4px 7px;
-    font-size: 0.7rem;
-    font-weight: bold;
-    line-height: 1;
-    z-index: 1001;
-}
+<script>
+  const avatar = document.getElementById('chatbot-avatar');
+  const chatbot = document.getElementById('chatbot-window');
+  let open = false;
 
+  avatar.addEventListener('click', () => {
+    open = !open;
+    chatbot.style.display = open ? 'block' : 'none';
+  });
+</script>
+
+
+    
 /* ---------------------------------- */
 /* --- Chat Window Positioning --- */
 /* ---------------------------------- */
 
-.chat-window {
-    display: none; /* Controlled by JS */
-    position: absolute;
-    bottom: 75px; /* Position above the button */
-    right: 0;
-    width: 320px; 
-    height: 400px;
-    background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    flex-direction: column; /* Added for better structure */
-}
 
-/* The rest of your existing chat-window, chat-header, chat-body, etc. CSS should remain the same or be defined here. */
-</style>
 
-   <script>
-    // --- Core Toggle Function ---
-    function toggleChat() {
-        const chatWindow = document.getElementById('chatWindow');
-        // Simple toggle using style.display
-        if (chatWindow.style.display === 'block') {
-            chatWindow.style.display = 'none';
-        } else {
-            chatWindow.style.display = 'block';
-        }
-    }
 
-    // --- Placeholder Functions (Assume these are in your main.js or defined here) ---
-    
-    function sendMessage(message) {
-        // Functionality to send a quick message
-        console.log("Quick option clicked: " + message);
-        // You would typically call a function here to append the user message and get a bot response
-    }
-    
-    function sendUserMessage() {
-        const input = document.getElementById('chatInput');
-        const message = input.value.trim();
-        if (message) {
-            console.log("User message sent: " + message);
-            input.value = '';
-            // You would typically call a function here to append the user message and get a bot response
-        }
-    }
-    
-    function handleEnter(event) {
-        if (event.key === 'Enter') {
-            sendUserMessage();
-        }
-    }
-
-    // Initialize chat window as hidden on page load
-    window.onload = function() {
-        document.getElementById('chatWindow').style.display = 'none';
-    };
-</script>
 </body>
 </html>
 </body>
