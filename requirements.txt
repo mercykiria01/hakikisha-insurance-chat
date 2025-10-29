@@ -1,0 +1,10 @@
+flask
+flask-cors
+langchain
+langchain-community
+langchain-openai
+faiss-cpu
+openai
+beautifulsoup4
+lxml
+gunicorn
