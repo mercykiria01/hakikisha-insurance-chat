@@ -595,3 +595,173 @@ body {
     align-items: center;
     gap: 0.5rem;
 }
+
+/* --- General Container Setup --- */
+.about {
+    padding: 60px 0; /* Vertical spacing */
+    background-color: #f8f9fa; /* Light background for the section */
+}
+
+.about-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.about-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Subtle shadow for lift */
+    padding: 30px;
+}
+
+.section-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 40px;
+    font-size: 2.2em;
+    font-weight: 600;
+}
+
+/* --- NEW: Two-Column Grid Layout for Content --- */
+.about-grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Creates two equal columns */
+    gap: 30px; /* Space between the columns */
+}
+
+.about-column-left {
+    padding-right: 15px; /* Adds a bit of separation */
+}
+
+.about-column-right {
+    padding-left: 15px; /* Adds a bit of separation */
+    border-left: 1px solid #eee; /* The subtle vertical separator line */
+}
+
+/* Content Blocks (Who We Are, Our Mission, etc.) */
+.content-block {
+    margin-bottom: 30px;
+}
+
+.block-title {
+    font-size: 1.3em;
+    font-weight: 600;
+    color: #333;
+    display: block; /* Ensures title takes full width */
+    margin-bottom: 10px;
+}
+
+/* Icon Styling (Matches the clean blue/grey look) */
+.icon-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.icon-header i {
+    font-size: 1.8em;
+    color: #ffaa00; /* Use your brand color for the main icons */
+    margin-right: 10px;
+}
+
+.icon-header .block-title {
+    margin-bottom: 0;
+}
+
+/* --- Specific Right Column Styling --- */
+
+/* Horizontal Separator Line */
+.separator-line {
+    border: 0;
+    height: 1px;
+    background: #e0e0e0;
+    margin: 20px 0;
+}
+
+/* Lists (Why Choose Us, Our Values) */
+.reason-list, .value-list {
+    list-style: none; /* Remove default bullets */
+    padding: 0;
+    margin: 10px 0 0 0;
+}
+
+.reason-list li, .value-list li {
+    margin-bottom: 8px;
+    font-size: 1em;
+    color: #555;
+    display: flex;
+    align-items: center;
+}
+
+.reason-list i {
+    color: #007bff; /* Blue for checkmarks/shields */
+    font-size: 1.1em;
+    margin-right: 8px;
+}
+
+.value-list i {
+    color: #007bff; /* Blue for the diamond/checkmarks */
+    font-size: 1.1em;
+    margin-right: 8px;
+}
+
+/* --- Contact Row at the bottom --- */
+.contact-row {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 30px;
+    border-top: 1px solid #eee; /* Separates content from contact info */
+    margin-top: 20px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    font-size: 1em;
+    color: #555;
+}
+
+.contact-item i {
+    font-size: 1.2em;
+    color: #007bff;
+    margin-right: 10px;
+}
+
+.contact-details {
+    margin-left: 5px;
+    font-weight: 500;
+}
+
+.contact-item a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+    .about-grid-container {
+        grid-template-columns: 1fr; /* Stacks columns vertically on mobile */
+    }
+
+    .about-column-right {
+        border-left: none;
+        padding-left: 0;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+    
+    .about-column-left {
+        padding-right: 0;
+    }
+
+    .contact-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .contact-item {
+        margin-bottom: 10px;
+    }
+}
