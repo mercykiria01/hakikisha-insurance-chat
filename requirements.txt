@@ -8,3 +8,5 @@ openai
 beautifulsoup4
 lxml
 gunicorn
+dotenv
+openai
