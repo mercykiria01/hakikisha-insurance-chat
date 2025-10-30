@@ -91,6 +91,16 @@ Answer:"""
 app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend access
 
+#serve frontend pages
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/about')
+def about():
+    return render_template('index.html')
+
+
 @app.route('/ask-faq', methods=['POST'])
 def ask_faq_endpoint():
     """API endpoint to receive a question and return a RAG-generated answer."""
