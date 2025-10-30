@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import os
 from langchain_community.document_loaders import WebBaseLoader
@@ -9,16 +9,18 @@ from langchain_community.vectorstores import FAISS
 # --- Global Variables for RAG components ---
 retriever = None
 llm = None
+RAG_READY = False   # <-- added readiness flag
 
 def initialize_rag():
     """Initializes the RAG system by loading, splitting, and embedding the website content."""
-    global retriever, llm
+    global retriever, llm, RAG_READY
 
     # Get the OpenAI API key from environment variables (Render uses this)
     openai_api_key = os.getenv("OPENAI_API_KEY")
 
     if not openai_api_key:
         print("❌ CRITICAL ERROR: OPENAI_API_KEY environment variable is not set.")
+        RAG_READY = False
         return
     else:
         os.environ["OPENAI_API_KEY"] = openai_api_key
@@ -45,42 +47,43 @@ def initialize_rag():
 
         # Create LLM (Stored globally)
         llm = ChatOpenAI(model_name="gpt-4")
+        RAG_READY = True   # <-- set ready only after full init
         print("✅ RAG System successfully initialized!")
 
     except Exception as e:
+        RAG_READY = False
         print(f"⚠️ Error initializing RAG system: {e}")
 
 
 def get_rag_answer(question):
     """Executes the RAG logic to find and summarize an answer."""
+    if not RAG_READY:
+        return "RAG system is still initializing. Please try again in a moment."
+
     if not retriever or not llm:
         return "RAG system not initialized. Please try again later."
 
     try:
-        # Get relevant documents
-        relevant_docs = retriever.invoke(question)
+        # Get relevant documents (use appropriate retriever method)
+        relevant_docs = retriever.get_relevant_documents(question)
 
         # Build context
         context = "\n\n".join([doc.page_content for doc in relevant_docs])
 
-        # Prompt for final answer generation
         prompt = f"""You are a helpful insurance assistant for Hakikisha Insurance.
-Answer the question based ONLY on the context provided. If the context contains relevant information,
-use it to give a detailed, helpful answer. If the context does not contain the answer, state that you cannot find the information in the provided context.
+    Answer the question based ONLY on the context provided...
+    Context:
+    {context}
 
-The website URL is: https://hakikisha-insurance-chat.onrender.com
+    Question: {question}
+    Answer:"""
 
-Context:
-{context}
-
-Question: {question}
-
-Provide a comprehensive answer about the insurance topic, using information from the context.
-Answer:"""
-
-        # Get answer from the LLM
-        response = llm.invoke(prompt)
-        return response.content
+        # Use llm.generate and extract text (adjust if your LangChain version differs)
+        response = llm.generate([prompt])
+        answer_text = ""
+        if response and response.generations and response.generations[0]:
+            answer_text = response.generations[0][0].text
+        return answer_text or "No answer generated."
 
     except Exception as e:
         print(f"⚠️ Error during RAG answer generation: {e}")
@@ -126,5 +129,9 @@ def ask_faq_endpoint():
 
 if __name__ == '__main__':
     print("🚀 Starting Flask server...")
-    initialize_rag()  # Initialize RAG components once when the server starts
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # initialize_rag()  # avoid blocking; start in background
+    from threading import Thread
+    Thread(target=initialize_rag, daemon=True).start()
+    port = int(os.getenv("PORT", 5000))
+    debug = os.getenv("FLASK_DEBUG", "false").lower() == "true"
+    app.run(host='0.0.0.0', port=port, debug=debug)
