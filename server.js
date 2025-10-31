@@ -284,6 +284,41 @@ const config = {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const axios = require('axios');
+
+// Proxy endpoint to call Flask API
+app.post('/api/ask-faq', async (req, res) => {
+  try {
+    const { question } = req.body;
+
+    if (!question) {
+      return res.status(400).json({ error: 'Missing "question" in request body' });
+    }
+
+    // Call Flask API (RAG)
+    const response = await axios.post(process.env.FLASK_API_URL, { question });
+
+    // Forward the response from Flask back to the frontend
+    res.json({
+      source: 'flask',
+      question,
+      answer: response.data.answer || response.data.fulfillmentText || "No answer from Flask."
+    });
+
+  } catch (error) {
+    console.error("❌ Error calling Flask API:", error.message);
+    if (error.response) {
+      console.error("Flask response:", error.response.data);
+    }
+
+    res.status(500).json({
+      error: "Failed to fetch response from Flask API",
+      details: error.message
+    });
+  }
+});
+
+
 // Add CORS headers for Dialogflow
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');

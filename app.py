@@ -119,19 +119,17 @@ def get_rag_answer(question):
 
 # --- Flask Application Setup ---
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend access
+# CORS(app)  # Enable CORS for frontend access
+from flask_cors import CORS
+
+CORS(app, resources={r"/*": {"origins": [
+    "https://hakikisha-node-backend.onrender.com",
+    "http://localhost:3000"
+]}})
+
 
 
 # serve frontend pages
-@app.route("/")
-def home():
-    return render_template("index.html")
-
-
-@app.route("/about")
-def about():
-    return render_template("index.html")
-
 
 @app.route("/ask-faq", methods=["POST"])
 def ask_faq_endpoint():
