@@ -521,6 +521,35 @@
   });
 </script>
 
+<script>
+async function askFAQ(question) {
+  try {
+    const res = await fetch("https://hakikisha-node-backend.onrender.com/api/ask-faq", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question })
+    });
+
+    if (!res.ok) throw new Error(`Server returned ${res.status}`);
+
+    const data = await res.json();
+    console.log("Answer:", data.answer);
+
+    // Example: display answer on the page
+    document.getElementById("response").innerText = data.answer;
+
+  } catch (err) {
+    console.error("Error contacting backend:", err);
+    document.getElementById("response").innerText = "Sorry, the assistant is offline.";
+  }
+}
+
+// Example of handling a button click
+document.getElementById("askButton").addEventListener("click", () => {
+  const question = document.getElementById("question").value;
+  askFAQ(question);
+});
+</script>
 
     
 /* ---------------------------------- */
