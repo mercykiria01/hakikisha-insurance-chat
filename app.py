@@ -64,9 +64,8 @@ def initialize_rag():
         RAG_READY = False
         print(f"⚠️ Error initializing RAG system: {e}")
 
-
 def get_rag_answer(question):
-    """Executes the RAG logic to find and summarize an answer."""
+    """Executes the RAG logic with scraped web context and consistent answer formatting."""
     if not RAG_READY:
         return "RAG system is still initializing. Please try again in a moment."
 
@@ -74,54 +73,49 @@ def get_rag_answer(question):
         return "RAG system not initialized. Please try again later."
 
     try:
-        # Get relevant documents (use appropriate retriever method)
+        # Retrieve or scrape website for relevant text
         relevant_docs = retriever.invoke(question)
-
-        print(relevant_docs)
-
-        # Build context
         context = "\n\n".join([doc.page_content for doc in relevant_docs])
 
-        print('tuko hapa')
+        # Structured system prompt
+        system_prompt = """
+        You are Hakikisha Insurance's virtual assistant.
+        Use only the context provided to answer questions.
+        
+        Rules:
+        - Be factual, clear, and concise.
+        - Never invent details not in the context.
+        - Use bullet points for clarity when possible.
+        - If the answer is not found, respond with:
+          "I’m sorry, I couldn’t find that information on the Hakikisha website."
+        - End with a short summary paragraph.
+        """
 
-        print(context)
+        # Combine context + question
+        user_prompt = f"""
+        Context:
+        {context}
 
-    #     messages = [{"role": "system", "content": get_patient_prompt()}]
-    # for m in messages_data:
-    #     messages.append({"role": m["role"], "content": m["content"]})
+        Question:
+        {question}
 
-    # # GPT response
-    # response = client.chat.completions.create(
-    #     model="gpt-4",
-    #     messages=messages
-    # )
-
-    #     prompt = f"""You are a helpful insurance assistant for Hakikisha Insurance.
-    # Answer the question based ONLY on the context provided...
-    # Context:
-    # {context}
-
-    # Question: {question}
-    # Answer:"""
-
-        # Use llm.generate and extract text (adjust if your LangChain version differs)
-        # response = llm.generate([prompt])
+        Based on the context above, provide the best possible answer.
+        """
 
         response = openai.chat.completions.create(
             model="gpt-4",
-            messages=[{"role": "system", "content": "You are a helpful insurance assistant for Hakikisha Insurance. Answer the question based ONLY on the context provided..."}, {"role": "user", "content": context}]
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ]
         )
 
-        print(response)
         answer_text = response.choices[0].message.content
         return answer_text or "No answer generated."
 
     except Exception as e:
         print(f"⚠️ Error during RAG answer generation: {e}")
-        return (
-            "An error occurred while processing your question. Please try again later."
-        )
-
+        return "An error occurred while processing your question. Please try again later."
 
 # --- Flask Application Setup ---
 app = Flask(__name__)
