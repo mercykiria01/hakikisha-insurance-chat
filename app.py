@@ -179,6 +179,14 @@ def get_policy(policy_number):
         cursor.close()
         conn.close()
 
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({
+        "status": "running",
+        "rag_ready": RAG_READY,
+        "retriever": retriever is not None,
+        "llm": llm is not None
+    })
 
 # serve frontend pages
 
