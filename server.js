@@ -231,9 +231,11 @@ const config = {
   server: process.env.DB_SERVER,
   database: process.env.DB_DATABASE,
   options: {
-    encrypt: true,
-    trustServerCertificate: false
-  }
+    encrypt: true,                 // required for Azure
+    trustServerCertificate: true   // set true for local testing only
+  },
+  connectionTimeout: 30000,        // 30s
+  requestTimeout: 30000
 };
 
 // Webhook endpoint for Dialogflow
@@ -288,33 +290,55 @@ const axios = require('axios');
 
 // Proxy endpoint to call Flask API
 app.post('/api/ask-faq', async (req, res) => {
+  console.log('DEBUG /api/ask-faq received body:', req.body);
   try {
-    const { question } = req.body;
-
-    if (!question) {
-      return res.status(400).json({ error: 'Missing "question" in request body' });
+    const { question, customer_id, k } = req.body || {};
+    if (!question || typeof question !== 'string' || !question.trim()) {
+      return res.status(400).json({ error: 'Missing or invalid "question" in request body' });
     }
 
-    // Call Flask API (RAG)
-    const response = await axios.post(process.env.FLASK_API_URL, { question });
+    const flaskUrl = process.env.FLASK_API_URL;
+    if (!flaskUrl) {
+      console.error('FLASK_API_URL not set');
+      return res.status(500).json({ error: 'FLASK_API_URL not configured on server' });
+    }
 
-    // Forward the response from Flask back to the frontend
-    res.json({
+    const forwardHeaders = {
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    };
+    if (req.headers.authorization) forwardHeaders.Authorization = req.headers.authorization;
+
+    const payload = { question: question.trim() };
+    if (customer_id) payload.customer_id = customer_id;
+    if (k) payload.k = k;
+
+    const response = await axios.post(flaskUrl, payload, {
+      headers: forwardHeaders,
+      timeout: 15000
+    });
+
+    return res.status(response.status).json({
       source: 'flask',
-      question,
-      answer: response.data.answer || response.data.fulfillmentText || "No answer from Flask."
+      ...response.data
     });
 
   } catch (error) {
-    console.error("❌ Error calling Flask API:", error.message);
+    // improved debug logs
+    console.error('❌ Error calling Flask API (proxy):', error.message);
     if (error.response) {
-      console.error("Flask response:", error.response.data);
+      console.error('Flask response status:', error.response.status);
+      console.error('Flask response data:', JSON.stringify(error.response.data));
+      return res.status(error.response.status).json({
+        error: 'Flask API error',
+        details: error.response.data
+      });
     }
-
-    res.status(500).json({
-      error: "Failed to fetch response from Flask API",
-      details: error.message
-    });
+    console.error(error.stack);
+    if (error.code === 'ECONNABORTED') {
+      return res.status(504).json({ error: 'Flask API timeout' });
+    }
+    return res.status(502).json({ error: 'Failed to fetch response from Flask API', details: error.message });
   }
 });
 
@@ -486,7 +510,23 @@ app.post('/webhook', async (req, res) => {
   }
 });
 
-const pool = await sql.connect(config);
+// Remove top-level await
+// const pool = await sql.connect(config);
+
+// Add this instead of the top-level await
+let pool = null;
+const poolPromise = sql.connect(config)
+  .then(p => {
+    console.log('✅ Connected to Azure SQL');
+    pool = p;
+    return p;
+  })
+  .catch(err => {
+    console.error('❌ Failed to connect to Azure SQL:', err);
+    pool = null;
+    return null;
+  });
+
 // Example: CustomerAuth sync endpoint
 app.post('/api/customer-auth', async (req, res) => {
   const { firebase_uid, email, phone } = req.body;

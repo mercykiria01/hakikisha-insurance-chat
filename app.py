@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import os
+import pyodbc
 # from langchain.vectorstores import Chroma
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -123,15 +124,60 @@ app = Flask(__name__)
 from flask_cors import CORS
 
 CORS(app, resources={r"/*": {"origins": [
-    "https://hakikisha-node-backend.onrender.com",
+    "https://hakikisha-insurance-chat.onrender.com",
     "http://localhost:3000"
 ]}})
 
+load_dotenv()
+
+# 🔹 Azure SQL Configuration
+DB_SERVER = os.getenv("DB_SERVER")
+DB_DATABASE = os.getenv("DB_DATABASE")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+
+def get_sql_connection():
+    """Create a new Azure SQL connection."""
+    conn_str = (
+        f"DRIVER={{ODBC Driver 18 for SQL Server}};"
+        f"SERVER={DB_SERVER};"
+        f"DATABASE={DB_DATABASE};"
+        f"UID={DB_USER};"
+        f"PWD={DB_PASSWORD};"
+        f"Encrypt=yes;"
+        f"TrustServerCertificate=no;"
+    )
+    return pyodbc.connect(conn_str)
+
+@app.route("/api/policy/<policy_number>", methods=["GET"])
+def get_policy(policy_number):
+    try:
+        conn = get_sql_connection()
+        cursor = conn.cursor()
+
+        query = "SELECT * FROM Policies WHERE PolicyNumber = ?"
+        cursor.execute(query, (policy_number,))
+        row = cursor.fetchone()
+
+        if not row:
+            return jsonify({"error": "Policy not found"}), 404
+
+        # Convert SQL row to dictionary
+        columns = [column[0] for column in cursor.description]
+        policy_data = dict(zip(columns, row))
+
+        return jsonify(policy_data)
+    except Exception as e:
+        print("❌ SQL Error:", e)
+        return jsonify({"error": "Database query failed"}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 
 # serve frontend pages
 
-@app.route("/ask-faq", methods=["POST"])
+@app.route("/api/ask-faq", methods=["POST"])
 def ask_faq_endpoint():
     """API endpoint to receive a question and return a RAG-generated answer."""
     try:
