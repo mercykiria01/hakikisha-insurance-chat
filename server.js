@@ -297,7 +297,7 @@ app.post('/api/ask-faq', async (req, res) => {
       return res.status(400).json({ error: 'Missing or invalid "question" in request body' });
     }
 
-    const flaskUrl = process.env.FLASK_API_URL;
+    const flaskUrl = process.env.FLASK_API_URL + '/api/ask-faq';
     if (!flaskUrl) {
       console.error('FLASK_API_URL not set');
       return res.status(500).json({ error: 'FLASK_API_URL not configured on server' });
