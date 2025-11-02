@@ -524,7 +524,7 @@
 <script>
 async function askFAQ(question) {
   try {
-    const response = await fetch('https://hakikisha-node-backend.onrender.com/api/ask-faq', {
+    const response = await fetch('/api/ask-faq', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question })
