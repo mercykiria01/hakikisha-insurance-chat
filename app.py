@@ -120,7 +120,7 @@ def get_rag_answer(question):
 
 # --- Flask Application Setup ---
 app = Flask(__name__)
-# CORS(app)  # Enable CORS for frontend access
+CORS(app)  # Enable CORS for frontend access
 from flask_cors import CORS
 
 CORS(app, resources={r"/*": {"origins": [
@@ -150,6 +150,11 @@ def get_sql_connection():
     return pyodbc.connect(conn_str)
 
 @app.route("/api/policy/<policy_number>", methods=["GET"])
+def health_check():
+    return jsonify({
+        "status": "Flask is running",
+        "rag_ready": RAG_READY
+    })
 def get_policy(policy_number):
     try:
         conn = get_sql_connection()
@@ -196,13 +201,15 @@ def ask_faq_endpoint():
         print(f"🔥 API Error: {e}")
         return jsonify({"error": "An internal server error occurred."}), 500
 
+# At module level (RIGHT for gunicorn):
+from threading import Thread
 
+# Initialize RAG when module loads
+print("🚀 Starting Flask server...")
+Thread(target=initialize_rag, daemon=True).start()
+
+# Keep this for local development only
 if __name__ == "__main__":
-    print("🚀 Starting Flask server...")
-    # initialize_rag()  # avoid blocking; start in background
-    from threading import Thread
-
-    Thread(target=initialize_rag, daemon=True).start()
     port = int(os.getenv("PORT", 5000))
     debug = os.getenv("FLASK_DEBUG", "false").lower() == "true"
     app.run(host="0.0.0.0", port=port, debug=debug)
