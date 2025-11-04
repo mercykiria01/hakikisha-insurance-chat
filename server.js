@@ -1,8 +1,12 @@
 require('dotenv').config(); // Load .env variables
 
+
+
+
 const express = require('express');
 const app = express();
 app.use(express.json());
+
 
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
@@ -232,7 +236,8 @@ const config = {
   database: process.env.DB_DATABASE,
   options: {
     encrypt: true,                 // required for Azure
-    trustServerCertificate: true   // set true for local testing only
+    trustServerCertificate: true
+       // set true for local testing only
   },
   connectionTimeout: 30000,        // 30s
   requestTimeout: 30000
@@ -350,15 +355,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Test endpoint to verify webhook is accessible
-app.get('/webhook', (req, res) => {
-  console.log('GET request to /webhook - webhook is accessible');
-  res.json({ 
-    status: 'Webhook is working',
-    timestamp: new Date().toISOString(),
-    message: 'This endpoint receives POST requests from Dialogflow'
-  });
-});
+
 
 // Add a root endpoint for basic testing
 app.get('/', (req, res) => {
@@ -370,6 +367,8 @@ app.get('/', (req, res) => {
   });
 });
 
+
+
 // Webhook endpoint for Dialogflow with enhanced debugging
 app.get('/webhook', (req, res) => {
   console.log('GET request to /webhook - webhook is accessible');
@@ -379,6 +378,19 @@ app.get('/webhook', (req, res) => {
   });
 });
 
+let pool = null;
+const poolPromise = sql.connect(config)
+  .then(p => {
+    console.log('✅ Connected to Azure SQL');
+    pool = p;
+    return p;
+  })
+  .catch(err => {
+    console.error('❌ Failed to connect to Azure SQL:', err);
+    pool = null;
+    return null;
+  });
+  
 // Webhook endpoint for Dialogflow with enhanced debugging
 app.post('/webhook', async (req, res) => {
   // Add comprehensive logging to debug the issue
@@ -412,8 +424,15 @@ app.post('/webhook', async (req, res) => {
 
   try {
     // Connect to SQL (use a pool for production)
-    await sql.connect(config);
-    
+    if (!pool) {
+      console.log('Waiting for database pool to be ready...');
+      await poolPromise;
+      if (!pool) {
+        throw new Error('Database connection pool not available');
+      }
+    }
+
+   
     // Use exact string comparison and also check for variations
     console.log('Comparing intent:', `"${intent}" === "PolicyDetails"`);
     
@@ -459,7 +478,9 @@ app.post('/webhook', async (req, res) => {
           const extractedPolicy = policyMatch[0];
           console.log('Extracted policy from query text:', extractedPolicy);
           // Use the extracted policy number
-          const result = await sql.query`SELECT * FROM fn_GetPolicyDetails(${extractedPolicy})`;
+         const result = await pool.request()
+  .input('policyNumber', sql.VarChar, extractedPolicy)
+  .query('SELECT * FROM fn_GetPolicyDetails(@policyNumber)');
           const policy = result.recordset[0];
           
           if (!policy) {
@@ -477,7 +498,9 @@ app.post('/webhook', async (req, res) => {
         });
       }
       
-      const result = await sql.query`SELECT * FROM fn_GetPolicyDetails(${policyNumber})`;
+      const result = await pool.request()
+  .input('policyNumber', sql.VarChar, policyNumber)
+  .query('SELECT * FROM fn_GetPolicyDetails(@policyNumber)');
       const policy = result.recordset[0];
       
       if (!policy) {
@@ -510,22 +533,7 @@ app.post('/webhook', async (req, res) => {
   }
 });
 
-// Remove top-level await
-// const pool = await sql.connect(config);
 
-// Add this instead of the top-level await
-let pool = null;
-const poolPromise = sql.connect(config)
-  .then(p => {
-    console.log('✅ Connected to Azure SQL');
-    pool = p;
-    return p;
-  })
-  .catch(err => {
-    console.error('❌ Failed to connect to Azure SQL:', err);
-    pool = null;
-    return null;
-  });
 
 // Example: CustomerAuth sync endpoint
 app.post('/api/customer-auth', async (req, res) => {
@@ -557,11 +565,202 @@ app.post('/api/customer-auth', async (req, res) => {
   }
 });
 
+
+
+
+
+// Link to Azure SQL
+app.post('/api/customer-auth', async (req, res) => {
+   try {
+    const { idToken } = req.body;
+
+     // ADDED: Validation check
+    if (!idToken) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'ID token is required' 
+      });
+    }
+    // This verifies BOTH phone and email tokens!
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const firebase_uid = decodedToken.uid;
+ // const { idToken, email, phone } = req.body;
+  //const firebase_uid = await verifyFirebaseToken(idToken);
+
+
+   // UPDATED: Extract email and phone (one or both may be present depending on auth method)
+    const email = decodedToken.email || null;  // Present for email auth
+    const phone = decodedToken.phone_number || null;  // Present for phone auth
+
+    // ADDED: Determine authentication method used
+    const auth_method = phone ? 'phone' : (email ? 'email' : 'unknown');
+
+    
+    // ADDED: Log for debugging - shows which method was used
+    console.log('✅ Token verified for user:', firebase_uid);
+    console.log('📱 Auth method:', auth_method);
+    console.log('📧 Email:', email || 'Not provided');
+    console.log('📞 Phone:', phone || 'Not provided');
+
+
+    // ADDED: Validation - ensure at least one contact method exists
+    if (!email && !phone) {
+      return res.status(400).json({
+        success: false,
+        error: 'User must have either email or phone number'
+      });
+    }
+
+
+ // FIXED: Proper SQL parameter binding using mssql library
+    // UPDATED: Now handles both email and phone (one or both may be null)
+    const query = `
+      MERGE CustomerAuth AS target
+      USING (SELECT @firebase_uid AS AuthID, @email AS Email, @phone AS Phone, @auth_method AS AuthMethod) AS source
+      ON target.AuthID = source.AuthID
+      WHEN MATCHED THEN 
+        UPDATE SET 
+          Email = COALESCE(source.Email, target.Email),
+          Phone = COALESCE(source.Phone, target.Phone),
+          AuthMethod = source.AuthMethod,
+          LastLogin = GETDATE()
+      WHEN NOT MATCHED THEN 
+        INSERT (AuthID, Email, Phone, CreatedDate) 
+        VALUES (source.AuthID, source.Email, source.Phone, GETDATE());
+    `;
+
+  
+  // FIXED: Use named parameters with pool.request()
+    // UPDATED: Added auth_method parameter
+    await pool.request()
+      .input('firebase_uid', sql.VarChar, firebase_uid)
+      .input('email', sql.VarChar, email)
+      .input('phone', sql.VarChar, phone)
+      .input('auth_method', sql.VarChar, auth_method)
+      .query(query);
+
+      
+    // ADDED: Fetch the user record to return to frontend
+    const userResult = await pool.request()
+      .input('firebase_uid', sql.VarChar, firebase_uid)
+      .query`SELECT * FROM CustomerAuth WHERE AuthID = @firebase_uid`;
+
+       // ADDED: Success response with user data and auth method info
+    res.json({ 
+      success: true,
+      message: 'User authenticated and linked successfully',
+      auth_method: auth_method,  // Tell frontend which method was used
+      user: userResult.recordset[0]
+    });
+
+    } catch (error) {
+    // ADDED: Comprehensive error handling
+    console.error('❌ Authentication error:', error);
+
+    // Handle specific Firebase token errors
+    if (error.code === 'auth/id-token-expired') {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Token expired. Please sign in again.' 
+      });
+    }
+
+    if (error.code === 'auth/argument-error') {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Invalid token format.' 
+      });
+    }
+
+    // Handle SQL errors
+    if (error.number) {  // SQL Server error
+      console.error('SQL Error Number:', error.number);
+      return res.status(500).json({ 
+        success: false, 
+        error: 'Database error occurred.' 
+      });
+    }
+
+    // Generic error response
+    res.status(500).json({ 
+      success: false, 
+      error: 'Authentication failed. Please try again.' 
+    });
+  }
+});
+
+// OPTIONAL: Add a middleware version for protecting routes
+// UPDATED: Works with both phone and email authentication
+async function verifyFirebaseMiddleware(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+
+    const idToken = authHeader.split('Bearer ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    
+    // UPDATED: Attach user info to request object (works for both auth methods)
+    req.firebase_uid = decodedToken.uid;
+    req.user_email = decodedToken.email || null;
+    req.user_phone = decodedToken.phone_number || null;
+    req.auth_method = decodedToken.phone_number ? 'phone' : 'email';
+    
+    next();
+  } catch (error) {
+    console.error('❌ Token verification failed:', error);
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+}
+
+// FIXED: Example protected route using middleware
+// UPDATED: Shows both email and phone if available
+app.get("/api/protected", verifyFirebaseMiddleware, (req, res) => {
+  res.json({ 
+    message: `Welcome user ${req.firebase_uid}`,
+    email: req.user_email,
+    phone: req.user_phone,
+    auth_method: req.auth_method
+  });
+});
+
+app.get("/api/customer-profile", verifyFirebaseMiddleware, async (req, res) => {
+  try {
+    const result = await pool.request()
+      .input('firebase_uid', sql.VarChar, req.firebase_uid)
+      .query`SELECT * FROM CustomerAuth WHERE AuthID = @firebase_uid`;
+    
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'User profile not found' 
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      profile: result.recordset[0] 
+    });
+  } catch (error) {
+    console.error('❌ Error fetching profile:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch profile' 
+    });
+  }
+});
+
+
 // Example endpoint for staff auth
 app.post('/api/user-auth', async (req, res) => {
   // Your logic here
   res.json({ success: true, message: "User auth endpoint hit!" });
 });
+
+
+
 
 // Root endpoint for testing
 app.get('/', (req, res) => {

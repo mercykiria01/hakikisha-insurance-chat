@@ -551,7 +551,46 @@ document.getElementById("askButton").addEventListener("click", () => {
 });
 </script>
 
-    
+ <script>
+  const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID"
+};
+
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+auth.signInWithPhoneNumber(phoneNumber, appVerifier)
+    .then(confirmationResult => {
+        // Ask user for OTP
+        return confirmationResult.confirm(otpCode);
+    });
+
+    auth.signInWithPhoneNumber(phoneNumber, appVerifier)
+  .then(confirmationResult => {
+    return confirmationResult.confirm(otpCode);
+  })
+  .then(userCredential => {
+    // Get the ID token
+    return userCredential.user.getIdToken();
+  })
+  .then(idToken => {
+
+    // Send to your backend
+    fetch('/api/customer-auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        idToken,
+        email: userCredential.user.email,
+        phone: userCredential.user.phoneNumber
+      })
+    });
+  });
+ </script>   
+
 /* ---------------------------------- */
 /* --- Chat Window Positioning --- */
 /* ---------------------------------- */
