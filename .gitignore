@@ -1,3 +1,6 @@
 node_modules/
 .env
 config/firebase-service-account.json
+hakikishabot-lagu-cd96c490b4ab.json
+*.log
+.DS_Store

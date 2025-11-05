@@ -6,7 +6,7 @@ require('dotenv').config(); // Load .env variables
 const express = require('express');
 const app = express();
 app.use(express.json());
-
+const { SessionsClient } = require('@google-cloud/dialogflow');
 
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
@@ -243,48 +243,13 @@ const config = {
   requestTimeout: 30000
 };
 
-// Webhook endpoint for Dialogflow
-//app.post('/webhook', async (req, res) => {
-  //const intent = req.body.queryResult.intent.displayName;
-  //const parameters = req.body.queryResult.parameters;
+// Dialogflow Configuration
+const DIALOGFLOW_PROJECT_ID = process.env.DIALOGFLOW_PROJECT_ID;
+const DIALOGFLOW_LANGUAGE_CODE = 'en';
 
-  //console.log('Parameters received:', parameters);
-
-  //console.log('Intent received:', intent);
-
-
-  //try {
-    // Connect to SQL (use a pool for production)
-    //await sql.connect(config);
-
-    //if (intent === 'PolicyDetails') {
-      //const policyNumber = parameters['policy-number'];
-      //const result = await sql.query`SELECT * FROM fn_GetPolicyDetails(${policyNumber})`;
-      //const policy = result.recordset[0];
-
-      //if (!policy) {
-        //return res.json({ fulfillmentText: 'No policy found with that number.' });
-      //}
-
-      //const responseText = `Your policy ${policy.PolicyName} covers ${policy.PolicyType} and is valid until ${policy.EndDate}.`;
-      //return res.json({ fulfillmentText: responseText });
-    //} else {
-      //return res.json({ fulfillmentText: 'Intent not recognized.' });
-    //}
-  //} catch (err) {
-    //console.error('Error:', err);
-    //return res.json({ fulfillmentText: 'Sorry, I couldn’t process your request right now.' });
-  //}
-//});
-
-//const PORT = process.env.PORT;
-
-
-
-//app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-
-
-
+// Initialize Dialogflow client
+// Make sure GOOGLE_APPLICATION_CREDENTIALS env var points to your service account key
+const sessionClient = new SessionsClient();
 
 
 // Middleware for parsing JSON and handling HTTPS
@@ -390,7 +355,65 @@ const poolPromise = sql.connect(config)
     pool = null;
     return null;
   });
+
+
   
+// ============================================
+// FRONTEND CHAT ENDPOINT
+// ============================================
+app.post('/chat', async (req, res) => {
+  const { message, sessionId } = req.body;
+
+  if (!message || !sessionId) {
+    return res.status(400).json({ 
+      error: 'Message and sessionId are required' 
+    });
+  }
+
+  console.log(`📨 Chat request - Session: ${sessionId}, Message: ${message}`);
+
+  try {
+    // Create Dialogflow session path
+    const sessionPath = sessionClient.projectAgentSessionPath(
+      DIALOGFLOW_PROJECT_ID,
+      sessionId
+    );
+
+      // Prepare the request for Dialogflow
+    const request = {
+      session: sessionPath,
+      queryInput: {
+        text: {
+          text: message,
+          languageCode: DIALOGFLOW_LANGUAGE_CODE,
+        },
+      },
+    };
+
+    
+    // Send request to Dialogflow
+    const [response] = await sessionClient.detectIntent(request);
+    const result = response.queryResult;
+
+    console.log(`✅ Dialogflow response - Intent: ${result.intent?.displayName}`);
+    console.log(`   Fulfillment: ${result.fulfillmentText}`);
+
+    // Return the response to frontend
+    return res.json({
+      reply: result.fulfillmentText,
+      intent: result.intent?.displayName,
+      confidence: result.intentDetectionConfidence
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /chat endpoint:', error);
+    return res.status(500).json({ 
+      error: 'Failed to process your message',
+      details: error.message 
+    });
+  }
+});
+
 // Webhook endpoint for Dialogflow with enhanced debugging
 app.post('/webhook', async (req, res) => {
   // Add comprehensive logging to debug the issue
@@ -403,13 +426,23 @@ app.post('/webhook', async (req, res) => {
     return res.json({ fulfillmentText: 'Invalid request structure.' });
   }
 
+  
+  const intent = req.body.queryResult.intent.displayName;
+  const parameters = req.body.queryResult.parameters;
+  const queryResult = req.body.queryResult;
+  const contexts = queryResult.outputContexts || [];
+  const queryText = queryResult.queryText;
+
+  console.log('Intent:', intent);
+  console.log('Parameters:', parameters);
+  console.log('Contexts:', contexts.map(c => c.name.split('/').pop()));
+
   if (!req.body.queryResult.intent) {
     console.log('ERROR: Missing intent in queryResult');
     return res.json({ fulfillmentText: 'No intent found in request.' });
   }
 
-  const intent = req.body.queryResult.intent.displayName;
-  const parameters = req.body.queryResult.parameters;
+
   
   console.log('Intent received:', intent);
   console.log('Parameters received:', JSON.stringify(parameters, null, 2));
@@ -432,106 +465,259 @@ app.post('/webhook', async (req, res) => {
       }
     }
 
-   
-    // Use exact string comparison and also check for variations
-    console.log('Comparing intent:', `"${intent}" === "PolicyDetails"`);
-    
-    // Try multiple intent name variations
-    const intentVariations = [
-      'PolicyDetails',
-      'Policy Details', 
-      'policydetails',
-      'policy.details',
-      'policy-details',
-      intent.toLowerCase(),
-      intent.trim()
-    ];
-    
-    const matchedIntent = intentVariations.find(variation => 
-      intent === variation || intent.toLowerCase() === variation.toLowerCase()
-    );
-    
-    if (matchedIntent || intent.toLowerCase().includes('policy')) {
-      console.log('Policy intent matched! Matched with:', matchedIntent || intent);
-      
-      // Try different parameter name variations
-      const policyNumber = parameters['policy-number'] || 
-                           parameters['policyNumber'] || 
-                           parameters.number ||
-                           parameters.any ||
-                           parameters['policy_number'];
-      
-      console.log('All parameters:', Object.keys(parameters));
-      console.log('Policy number extracted:', policyNumber);
-      
-      if (!policyNumber) {
-        console.log('ERROR: No policy number found in parameters');
-        console.log('Available parameter keys:', Object.keys(parameters));
-        
-        // Check if we can extract from the original query text
-        const queryText = req.body.queryResult.queryText;
-        console.log('Original query:', queryText);
-        
-        // Try to extract policy number from query text using regex
-        const policyMatch = queryText.match(/POL\d+|[A-Z]{2,3}\d+|\b[A-Z]+\d+\b/i);
-        if (policyMatch) {
-          const extractedPolicy = policyMatch[0];
-          console.log('Extracted policy from query text:', extractedPolicy);
-          // Use the extracted policy number
-         const result = await pool.request()
-  .input('policyNumber', sql.VarChar, extractedPolicy)
-  .query('SELECT * FROM fn_GetPolicyDetails(@policyNumber)');
-          const policy = result.recordset[0];
-          
-          if (!policy) {
-            return res.json({ 
-              fulfillmentText: `No policy found with number ${extractedPolicy}.` 
-            });
-          }
-          
-          const responseText = `Your policy ${policy.PolicyName} covers ${policy.PolicyType} and is valid until ${policy.EndDate}.`;
-          return res.json({ fulfillmentText: responseText });
-        }
-        
-        return res.json({ 
-          fulfillmentText: 'Please provide a valid policy number (e.g., POL123456).' 
-        });
-      }
-      
-      const result = await pool.request()
-  .input('policyNumber', sql.VarChar, policyNumber)
-  .query('SELECT * FROM fn_GetPolicyDetails(@policyNumber)');
-      const policy = result.recordset[0];
-      
-      if (!policy) {
-        console.log('No policy found for number:', policyNumber);
-        return res.json({ 
-          fulfillmentText: 'No policy found with that number.' 
-        });
-      }
-      
-      const responseText = `Your policy ${policy.PolicyName} covers ${policy.PolicyType} and is valid until ${policy.EndDate}.`;
-      console.log('Sending response:', responseText);
-      return res.json({ fulfillmentText: responseText });
-      
-    } else {
-      // List all possible intents we're receiving to help debug
-      console.log('Intent not recognized. Received intent:', intent);
-      console.log('Expected variations: PolicyDetails, Policy Details, etc.');
-      console.log('Character codes for received intent:', 
-        intent.split('').map(char => char.charCodeAt(0)));
-      
-      return res.json({ 
-        fulfillmentText: `Intent "${intent}" not recognized. Please check your Dialogflow intent configuration.` 
-      });
+
+     // Extract role context
+    const roleContext = getRoleContext(contexts);
+    console.log('Active Role:', roleContext);
+
+    // Route to appropriate handler based on intent
+    let responseText = '';
+
+    switch (intent) {
+      case 'PolicyDetails':
+      case 'check.policy.status':
+        responseText = await handlePolicyDetails(parameters, queryText, roleContext);
+        break;
+
+      case 'GeneralFAQ':
+        responseText = await handleGeneralFAQ(parameters, queryText, roleContext);
+        break;
+
+      case 'ComplexClaimQuery':
+        responseText = await handleComplexClaimQuery(parameters, queryText, roleContext);
+        break;
+
+      case 'DocumentVerification':
+        responseText = await handleDocumentVerification(parameters, queryText, roleContext);
+        break;
+
+      case 'ClaimStatus':
+        responseText = await handleClaimStatus(parameters, queryText, roleContext);
+        break;
+
+      default:
+        responseText = `I understand you're asking about "${intent}", but I need more specific information to help you.`;
     }
-  } catch (err) {
-    console.error('Database/Server Error:', err);
+
+    console.log('✅ Sending response:', responseText);
+    return res.json({ fulfillmentText: responseText });
+
+  } catch (error) {
+    console.error('❌ Webhook error:', error);
     return res.json({ 
-      fulfillmentText: 'Sorry, I couldn\'t process your request right now.' 
+      fulfillmentText: 'Sorry, I encountered an error processing your request. Please try again.' 
     });
   }
 });
+
+
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+function getRoleContext(contexts) {
+  for (const context of contexts) {
+    const contextName = context.name.split('/').pop();
+    if (contextName.includes('customer-mode')) return 'customer';
+    if (contextName.includes('visitor-mode')) return 'visitor';
+    if (contextName.includes('staff-mode')) return 'staff';
+  }
+  return 'unknown';
+}
+
+
+// ============================================
+// INTENT HANDLERS
+// ============================================
+
+async function handlePolicyDetails(parameters, queryText, roleContext) {
+  console.log('📋 Handling PolicyDetails intent');
+
+  // Check authorization
+  if (roleContext === 'visitor') {
+    return "I'm sorry, but policy details are only available to customers and staff. Please select your role first.";
+  }
+
+
+   // Extract policy number - try multiple parameter variations
+  const policyNumber = parameters['policy-number'] || 
+                       parameters['policynumber'] || 
+                       parameters['number'] ||
+                       parameters['any'] ||
+                       extractPolicyNumber(queryText);
+
+  console.log('Extracted policy number:', policyNumber);
+
+    
+  if (!policyNumber) {
+    return 'Please provide a valid policy number (e.g., POL123456).';
+  }
+
+   try {
+    // Query Azure SQL
+    console.log('Querying database for policy:', policyNumber);
+    
+    const result = await pool.request()
+      .input('policyNumber', sql.VarChar, policyNumber)
+      .query('SELECT * FROM fn_GetPolicyDetails(@policyNumber)');
+
+    const policy = result.recordset[0];
+
+    if (!policy) {
+      console.log('❌ No policy found for:', policyNumber);
+      return `No policy found with number ${policyNumber}.`;
+    }
+
+    console.log('✅ Policy found:', policy);
+
+
+  
+    // Format response based on role
+  if (roleContext === 'staff') {
+      return `Policy ${policy.PolicyName} (${policyNumber}):\n` +
+             `Type: ${policy.PolicyType}\n` +
+             `Holder: ${policy.HolderName}\n` +
+             `Status: ${policy.Status}\n` +
+             `Valid until: ${policy.EndDate}\n` +
+             `Premium: $${policy.PremiumAmount}`;
+    } 
+    else {
+      return `Your policy ${policy.PolicyName} covers ${policy.PolicyType} and is valid until ${policy.EndDate}. Premium: $${policy.PremiumAmount}/month.`;
+    }
+  }
+    catch (error) {
+    console.error('❌ Database error in handlePolicyDetails:', error);
+    throw error;
+  }
+}
+    
+
+// General FAQ handler
+async function handleGeneralFAQ(parameters, queryText, roleContext) {
+  console.log('❓ Handling GeneralFAQ intent');
+
+  try {
+    // Call Flask RAG API
+    const response = await axios.post(`${FLASK_RAG_URL}/query`, {
+      question: queryText,
+      role: roleContext
+    }, {
+      timeout: 10000 // 10 second timeout
+    });
+
+    return response.data.answer || "I couldn't find information about that. Could you rephrase your question?";
+
+  } catch (error) {
+    console.error('Flask RAG API error:', error);
+    return "I'm having trouble accessing that information right now. Please try again or contact support.";
+  }
+}
+
+// Complex Claim Query handler
+async function handleComplexClaimQuery(parameters, queryText, roleContext) {
+  console.log('🔍 Handling ComplexClaimQuery intent');
+
+  if (roleContext === 'visitor') {
+    return "Claim information is only available to customers and staff.";
+  }
+
+  const policyNumber = parameters['policy-number'] || extractPolicyNumber(queryText);
+
+  if (!policyNumber) {
+    return 'Please provide the policy number for the claim you\'re asking about.';
+  }
+
+ try {
+    // Step 1: Get claim details from Azure SQL
+    const claimResult = await pool.request()
+      .input('policyNumber', sql.VarChar, policyNumber)
+      .query('SELECT * FROM fn_GetClaimDetails(@policyNumber)');
+
+    const claim = claimResult.recordset[0];
+
+    if (!claim) {
+      return `No claim found for policy ${policyNumber}.`;
+    }
+
+    // Step 2: Get policy terms from Flask RAG
+    const ragResponse = await axios.post(`${FLASK_RAG_URL}/query`, {
+      question: `What are the coverage terms for ${claim.ClaimType} claims?`,
+      role: roleContext
+    }, { timeout: 10000 });
+
+    const policyTerms = ragResponse.data.answer;
+
+      // Step 3: Synthesize with GPT-4 (if you have OpenAI integration)
+    // For now, return combined information
+    return `Claim Status: ${claim.Status}\n` +
+           `Claim Amount: $${claim.Amount}\n` +
+           `Reason: ${claim.Reason}\n\n` +
+           `Policy Terms: ${policyTerms}`;
+
+  } catch (error) {
+    console.error('Complex claim query error:', error);
+    throw error;
+  }
+}
+
+async function handleDocumentVerification(parameters, queryText, roleContext) {
+  console.log('📄 Handling DocumentVerification intent');
+
+  if (roleContext !== 'customer') {
+    return "Document verification is only available for customers.";
+  }
+
+  // This would integrate with GPT-4 Vision API
+  // For now, placeholder response
+  return "To verify your document, please upload it through our secure portal at https://hakikisha.com/verify";
+}
+
+async function handleClaimStatus(parameters, queryText, roleContext) {
+  console.log('📊 Handling ClaimStatus intent');
+
+  if (roleContext === 'visitor') {
+    return "Claim status is only available to customers and staff.";
+  }
+
+  const claimNumber = parameters['claim-number'] || parameters['claimNumber'];
+
+  if (!claimNumber) {
+    return 'Please provide your claim number (e.g., CLM123456).';
+  }
+
+  try {
+    const result = await pool.request()
+      .input('claimNumber', sql.VarChar, claimNumber)
+      .query('SELECT * FROM fn_GetClaimStatus(@claimNumber)');
+
+    const claim = result.recordset[0];
+
+    if (!claim) {
+      return `No claim found with number ${claimNumber}.`;
+    }
+
+    return `Your claim ${claimNumber} is currently ${claim.Status}. ` +
+           `Submitted on: ${claim.SubmissionDate}. ` +
+           `${claim.Status === 'Pending' ? 'We are reviewing your claim and will update you soon.' : ''}`;
+
+  } catch (error) {
+    console.error('Claim status error:', error);
+    throw error;
+  }
+}
+
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+function extractPolicyNumber(text) {
+  // Try to extract policy number from text using regex
+  const match = text.match(/POL\d+|[A-Z]{2,3}\d+|\b[A-Z]+\d+\b/i);
+  return match ? match[0].toUpperCase() : null;
+}
+
 
 
 
@@ -770,3 +956,5 @@ app.get('/', (req, res) => {
 // Listen on the correct port
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+console.log(`📍 Chat endpoint: http://localhost:${PORT}/chat`);
+console.log(`📍 Webhook endpoint: http://localhost:${PORT}/webhook`);
