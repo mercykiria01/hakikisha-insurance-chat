@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hakikisha Insurance - Protect What Matters Most</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* ============================================ */
+        /* BASE STYLES & UTILITIES */
+        /* ============================================ */
+        :root {
+            --primary-color: #007bff; /* Blue for primary actions/accents */
+            --secondary-color: #6c757d; /* Grey for secondary actions */
+            --logo-color: #ffc107; /* Yellow/Orange for the emoji logo */
+            --text-dark: #2c3e50;
+            --text-light: #f8f9fa;
+            --card-bg-light: rgba(255, 255, 255, 0.9);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            --gradient-main: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --kes-green: #28a745; /* Green for the KES price */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            color: var(--text-dark);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-container, .hero-container, .trust-bar, .services-container, .about-container, .contact-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        /* ============================================ */
+        /* BUTTON STYLES */
+        /* ============================================ */
+        .btn-primary, .btn-secondary {
+            display: inline-block;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        /* Secondary button (used in Hero and Navbar Get Quote) */
+        .btn-secondary {
+            background-color: transparent;
+            color: white; /* Important for Hero section */
+            border: 2px solid white;
+            margin-left: 15px;
+        }
+        
+        /* Specific override for the 'Get Quote' button in the Header to look like the image */
+        .header .btn-secondary {
+            background-color: white;
+            color: var(--primary-color);
+            border: 2px solid white;
+            padding: 8px 20px;
+            margin-right: 10px;
+            margin-left: 0;
+        }
+        
+        .header .btn-secondary:hover {
+            background-color: #f8f9fa;
+            color: #0056b3;
+            transform: none;
+        }
+
+        /* Login button in Header */
+        .header .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 8px 20px;
+            margin-left: 0; /* Override margin from btn-secondary */
+        }
+        
+        .hero .btn-primary { /* Hero specific primary button */
+            background-color: white;
+            color: var(--primary-color);
+            border-color: white;
+            margin-left: 0;
+        }
+
+        .hero .btn-primary:hover {
+            background-color: #f1f1f1;
+            color: #0056b3;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* ============================================ */
+        /* HEADER / NAVBAR STYLES */
+        /* ============================================ */
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 15px 0;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-emoji {
+            font-size: 1.5rem;
+            margin-right: 5px;
+        }
+
+        .logo-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-menu a {
+            color: white;
+            font-weight: 500;
+            font-size: 1.05rem;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+        }
+
+        .nav-menu a:hover {
+            opacity: 1;
+        }
+
+        .cta-buttons {
+            display: flex;
+            align-items: center;
+        }
+
+        /* ============================================ */
+        /* HERO SECTION STYLES */
+        /* ============================================ */
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-top: 80px; /* Space for the fixed header */
+            background: url('Screenshot%202025-11-10%20203744.jpg') no-repeat center center/cover; /* Use the uploaded image as background */
+            text-align: left;
+            overflow: hidden;
+            color: white;
+        }
+        
+        /* Dark overlay to make text readable */
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3); /* Slight dark wash */
+            z-index: 1;
+        }
+
+        .hero-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2; /* Bring content above the overlay */
+            height: 80%;
+        }
+
+        .hero-content {
+            max-width: 50%;
+            padding-right: 50px;
+        }
+
+        .hero-title {
+            font-size: 3.8rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* ============================================ */
+        /* INSURANCE CARD STYLES (Floating Visual) */
+        /* ============================================ */
+        .hero-visual {
+            max-width: 400px;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .insurance-card {
+            background-color: var(--card-bg-light);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            color: var(--text-dark);
+            width: 100%;
+            backdrop-filter: blur(5px);
+            /* Tilt and reposition to match the screenshot */
+            transform: rotateZ(5deg) translateY(20px);
+        }
+
+        .card-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .card-icon::before {
+             content: '🛡️'; /* Using the shield emoji as in the screenshot */
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .coverage-list {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .coverage-list li {
+            padding: 8px 0;
+            font-size: 1rem;
+            border-bottom: 1px dashed #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .coverage-list li::before {
+            content: '✓';
+            color: var(--kes-green);
+            font-weight: 700;
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .price-display {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .price-display div:first-child {
+            font-size: 2.5rem;
+            color: var(--kes-green);
+            font-weight: 800;
+            line-height: 1.1;
+        }
+        
+        .price-display div:last-child {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* ============================================ */
+        /* TRUST BAR (BOTTOM OF HERO) */
+        /* ============================================ */
+        .trust-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        
+        .trust-item span:first-child {
+            font-size: 1.1rem;
+        }
+
+        /* ============================================ */
+        /* SERVICES SECTION STYLES */
+        /* ============================================ */
+        .services {
+            padding: 80px 20px;
+            background-color: #f8f9fa;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .service-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 5px solid var(--primary-color);
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .service-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .service-description {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        /* ============================================ */
+        /* ABOUT SECTION STYLES (Kept from original) */
+        /* ============================================ */
+        .about {
+            padding: 80px 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .about-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .about-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .about-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .about-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: white;
+        }
+
+        .about-card h3 {
+            font-size: 1.4rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .about-card p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .about-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .about-list li {
+            padding: 10px 0;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .about-list li:last-child {
+            border-bottom: none;
+        }
+
+        .about-list i {
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        /* ============================================ */
+        /* CONTACT SECTION STYLES (Kept from original) */
+        /* ============================================ */
+        .contact {
+            padding: 80px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .contact-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .contact-subtitle {
+            font-size: 1.1rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .contact-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 40px 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .contact-icon {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 28px;
+            color: #667eea;
+        }
+
+        .contact-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .contact-card p,
+        .contact-card a {
+            font-size: 1.1rem;
+            margin: 10px 0;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-card a:hover {
+            text-decoration: underline;
+        }
+
+        .contact-detail {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* ============================================ */
+        /* CHATBOT STYLES (Kept from original) */
+        /* ============================================ */
+        #chatbot-avatar {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: url('https://cdn-icons-png.flaticon.com/512/4712/4712109.png') no-repeat center/cover;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 9999;
+            transition: transform 0.3s;
+        }
+
+        #chatbot-avatar:hover {
+            transform: scale(1.1);
+        }
+        
+        .chat-container {
+            position: fixed;
+            bottom: 100px;
+            right: 24px;
+            width: 400px;
+            height: 600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 10000;
+        }
+
+        .chat-container.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: var(--gradient-main);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-header-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .chat-header-info p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .chat-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .message.user .message-content {
+            background: var(--gradient-main);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 10px 16px;
+            background: white;
+            border-radius: 18px;
+            width: fit-content;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .typing-indicator.active {
+            display: block;
+        }
+
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+        }
+
+        .chat-send {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--gradient-main);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .chat-send:hover {
+            transform: scale(1.05);
+        }
+
+        .chat-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .chat-send svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 3px;
+        }
+
+        /* ============================================ */
+        /* MEDIA QUERIES */
+        /* ============================================ */
+        @media (max-width: 1024px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+            
+            .hero-content {
+                max-width: 60%;
+            }
+
+            .insurance-card {
+                transform: rotateZ(0) translateY(0);
+                margin-top: 30px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none; /* Hide nav links on smaller screens for simplicity */
+            }
+            
+            .hero {
+                height: auto;
+                padding-bottom: 100px; /* Add space above trust bar */
+            }
+
+            .hero-container {
+                flex-direction: column;
+                padding-top: 50px;
+                padding-bottom: 50px;
+            }
+
+            .hero-content {
+                max-width: 100%;
+                text-align: center;
+                padding-right: 0;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .trust-bar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px 20px;
+                position: static; /* Let it flow after the hero content */
+                background: rgba(0, 0, 0, 0.7);
+            }
+            
+            .contact-grid, .about-grid, .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-emoji">👌</span>
+                <span class="logo-title">Hakikisha Insurance</span>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#services">Insurance</a></li>
+                    <li><a href="#claims">Claims</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="cta-buttons">
+                <a href="static/quote-request.html" class="btn-secondary">Get Quote</a>
+                <a href="static/login.html" class="btn-primary"> Login</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero" id="home">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Protect What Matters Most</h1>
+                <p class="hero-subtitle">
+                    Comprehensive insurance coverage tailored to your needs. From auto to home, life to business - we've got you covered with affordable premiums and exceptional service.
+                </p>
+                <div class="hero-buttons">
+                    <a href="/static/quote-request.html" class="btn-primary">Get Free Quote</a>
+                    <a href="#services" class="btn-secondary">Explore Coverage</a>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="insurance-card">
+                    <div class="card-header">
+                        <div class="card-icon"></div> <div class="card-title">Complete Protection</div>
+                    </div>
+                    <ul class="coverage-list">
+                        <li>Auto Insurance</li>
+                        <li>Home Insurance</li>
+                        <li>Life Insurance</li>
+                        <li>Business Insurance</li>
+                        <li>Health Insurance</li>
+                    </ul>
+                    <div class="price-display">
+                        <div>
+                            From KES <span style="font-size: 1.5em; display: block; line-height: 1;">5,000/month</span>
+                        </div>
+                        <div>
+                            Trusted by 50,000+ families
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="trust-bar">
+            <div class="trust-item">
+                <span>⭐</span>
+                <span>4.9/5 Rating</span>
+            </div>
+            <div class="trust-item">
+                <span>⭐</span> <span>Licensed & Regulated</span>
+            </div>
+            <div class="trust-item">
+                <span>📞</span> <span>24/7 Support</span>
+            </div>
+            <div class="trust-item">
+                <span>⚡</span>
+                <span>Instant Quotes</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="services" id="services">
+        <div class="services-container">
+            <h2 class="section-title">Our Insurance Services</h2>
+            <div class="services-grid">
+                <div class="service-card" onclick="openChat('auto')">
+                    <div class="service-icon">🚗</div>
+                    <h3 class="service-title">Auto Insurance</h3>
+                    <p class="service-description">Comprehensive coverage for your vehicle with competitive rates and quick claims processing.</p>
+                    <a href="auto-insurance.html" class="btn-primary">Learn More</a>
+                </div>
+                
+                <div class="service-card" onclick="openChat('home')">
+                    <div class="service-icon">🏠</div>
+                    <h3 class="service-title">Home Insurance</h3>
+                    <p class="service-description">Protect your home and belongings with our comprehensive homeowners insurance policies.</p>
+                    <a href="home-insurance.html" class="btn-primary">Learn More</a>
+                </div>
+                
+                <div class="service-card" onclick="openChat('life')">
+                    <div class="service-icon">❤️</div>
+                    <h3 class="service-title">Life Insurance</h3>
+                    <p class="service-description">Secure your family's future with our flexible life insurance plans and coverage options.</p>
+                    <a href="#" class="btn-primary">Learn More</a>
+                </div>
+                
+                <div class="service-card" onclick="openChat('business')">
+                    <div class="service-icon">🏢</div>
+                    <h3 class="service-title">Business Insurance</h3>
+                    <p class="service-description">Comprehensive business protection including liability, property, and workers' compensation.</p>
+                    <a href="#" class="btn-primary">Learn More</a>
+                </div>
+                
+                <div class="service-card" onclick="openChat('health')">
+                    <div class="service-icon">🏥</div>
+                    <h3 class="service-title">Health Insurance</h3>
+                    <p class="service-description">Quality healthcare coverage with extensive network of providers and wellness programs.</p>
+                    <a href="#" class="btn-primary">Learn More</a>
+                </div>
+                
+                <div class="service-card" onclick="openChat('travel')">
+                    <div class="service-icon">✈️</div>
+                    <h3 class="service-title">Travel Insurance</h3>
+                    <p class="service-description">Travel with confidence with our comprehensive travel insurance and emergency assistance.</p>
+                    <a href="#" class="btn-primary">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about" id="about">
+        <div class="about-container">
+            <h2 class="section-title">About Hakikisha Insurance</h2>
+            
+            <div class="about-grid">
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Who We Are</h3>
+                    <p>Leading provider of comprehensive insurance solutions. Protecting your family, assets, and future for years.</p>
+                </div>
+
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3>Our Mission</h3>
+                    <p>Deliver affordable, reliable, and innovative insurance products for peace of mind, known for exceptional service & financial security.</p>
+                </div>
+
+                <div class="about-card">
+                    <h3>Why Choose Us?</h3>
+                    <ul class="about-list">
+                        <li><i class="fas fa-shield-alt"></i> Licensed & Regulated</li>
+                        <li><i class="fas fa-check"></i> 24/7 Support and claims assistance</li>
+                    </ul>
+                </div>
+
+                <div class="about-card">
+                    <h3>Our Values</h3>
+                    <ul class="about-list">
+                        <li><i class="fas fa-gem"></i> Integrity</li>
+                        <li><i class="fas fa-check"></i> Fast, Transparent, and hassle-free process</li>
+                        <li>Flexible - Trusted by over 5000+ Families</li>
+                        <li>Excellence</li>
+                        <li>Community</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="contact" id="contact">
+        <div class="contact-container">
+            <h2 class="section-title">Contact Us</h2>
+            <p class="contact-subtitle">Get in touch with our team. We're here to help you 24/7</p>
+            
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <h3>Call Us</h3>
+                    <p>0800-000-000</p>
+                    <span class="contact-detail">Available 24/7</span>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h3>Email Us</h3>
+                    <a href="mailto:info@hakikishainsurance.co.ke">info@hakikishainsurance.co.ke</a>
+                    <span class="contact-detail">We'll respond within 24 hours</span>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h3>Visit Us</h3>
+                    <p>Nairobi, Kenya</p>
+                    <span class="contact-detail">Mon-Fri: 8AM - 6PM</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="chatbot-avatar" title="Chat with Hakikisha Assistant"></div>
+
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <h3>Hakikisha Bot</h3>
+                <p>Online • Ready to help</p>
+            </div>
+            <button class="chat-close" id="chatClose" aria-label="Close chat">×</button>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            </div>
+
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+                <input 
+                    type="text" 
+                    class="chat-input" 
+                    id="chatInput" 
+                    placeholder="Type your message..."
+                    autocomplete="off"
+                />
+                <button class="chat-send" id="chatSend" aria-label="Send message">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chat Widget Manager
+        /**
+        * UPDATED CHAT WIDGET FOR FLASK BACKEND
+        * Replace the ChatWidget class in your index.html with this
+        */
+
+class ChatWidget {
+    constructor() {
+        this.chatAvatar = document.getElementById('chatbot-avatar');
+        this.chatContainer = document.getElementById('chatContainer');
+        this.chatClose = document.getElementById('chatClose');
+        this.chatMessages = document.getElementById('chatMessages');
+        this.chatInput = document.getElementById('chatInput');
+        this.chatSend = document.getElementById('chatSend');
+        
+        // Generate unique session ID
+        this.sessionId = this.getOrCreateSessionId();
+        
+        // Check if user is authenticated
+        this.checkAuthStatus();
+        
+        this.init();
+    }
+
+    init() {
+        // Event listeners
+        this.chatAvatar.addEventListener('click', () => this.toggleChat());
+        this.chatClose.addEventListener('click', () => this.toggleChat());
+        this.chatSend.addEventListener('click', () => this.sendMessage());
+        this.chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.sendMessage();
+        });
+
+        // Send welcome message
+        this.addBotMessage("Hi! Welcome to Hakikisha Insurance. How can I help you today?");
+    }
+
+    getOrCreateSessionId() {
+        let sessionId = sessionStorage.getItem('hakikisha-session-id');
+        if (!sessionId) {
+            sessionId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            sessionStorage.setItem('hakikisha-session-id', sessionId);
+        }
+        return sessionId;
+    }
+
+    async checkAuthStatus() {
+        try {
+            const response = await fetch('/api/check-session', {
+                credentials: 'include'
+            });
+            const data = await response.json();
+            
+            if (data.authenticated) {
+                console.log('User authenticated:', data.user);
+                // You can update UI to show user is logged in
+            }
+        } catch (error) {
+            console.log('Not authenticated');
+        }
+    }
+
+    toggleChat() {
+        this.chatContainer.classList.toggle('active');
+        if (this.chatContainer.classList.contains('active')) {
+            this.chatInput.focus();
+        }
+    }
+
+   async sendMessage() {
+    const message = this.chatInput.value.trim();
+    if (!message) return;
+
+    // Disable input while processing
+    this.chatInput.disabled = true;
+    this.chatSend.disabled = true;
+
+    // Add user message to chat
+    this.addUserMessage(message);
+    this.chatInput.value = '';
+
+    // Show typing indicator
+    this.showTypingIndicator();
+
+    try {
+        // UPDATED: New endpoint for Flask backend
+        const response = await fetch('/api/chat', {  // ← Changed from '/chat' to '/api/chat'
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',  // ← Added for session management
+            body: JSON.stringify({
+                message: message,
+                sessionId: this.sessionId
+            })
+        });
+
+        const data = await response.json();
+        
+        // Hide typing indicator
+        this.hideTypingIndicator();
+
+        // Add bot response
+        if (data.reply) {
+            this.addBotMessage(data.reply);
+        } else if (data.error) {
+            this.addBotMessage("Sorry, I encountered an error. Please try again.");
+        }
+    } catch (error) {
+        console.error('Error sending message:', error);
+        this.hideTypingIndicator();
+        this.addBotMessage("Sorry, I'm having trouble connecting. Please try again later.");
+    } finally {
+        // Re-enable input
+        this.chatInput.disabled = false;
+        this.chatSend.disabled = false;
+        this.chatInput.focus();
+    }
+}
+    addUserMessage(text) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message user';
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                ${this.escapeHtml(text)}
+                <div class="message-time">${this.getCurrentTime()}</div>
+            </div>
+        `;
+        this.chatMessages.appendChild(messageDiv);
+        this.scrollToBottom();
+    }
+
+    addBotMessage(text) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message bot';
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                ${this.escapeHtml(text)}
+                <div class="message-time">${this.getCurrentTime()}</div>
+            </div>
+        `;
+        this.chatMessages.appendChild(messageDiv);
+        this.scrollToBottom();
+    }
+
+    showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'typing-indicator active';
+        typingDiv.id = 'typingIndicator';
+        typingDiv.innerHTML = '<span></span><span></span><span></span>';
+        this.chatMessages.appendChild(typingDiv);
+        this.scrollToBottom();
+    }
+
+    hideTypingIndicator() {
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+
+    scrollToBottom() {
+        this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+    }
+
+    getCurrentTime() {
+        const now = new Date();
+        return now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+}
+
+// Initialize chat widget when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    new ChatWidget();
+});
+
+
+
+
+// Example of handling a button click
+document.getElementById("askButton").addEventListener("click", () => {
+    const question = document.getElementById("question").value;
+    askFAQ(question);
+});
+</script>
+
+</body>
+</html>

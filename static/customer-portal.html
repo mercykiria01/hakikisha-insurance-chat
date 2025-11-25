@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Portal - Hakikisha Insurance</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+
+        /* Reminders Banner */
+        .reminders-banner {
+            background: #fff;
+            border-bottom: 2px solid #f0f0f0;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .reminders-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .reminders-header h3 {
+            color: #333;
+            font-size: 1.3rem;
+            margin: 0;
+        }
+
+        .btn-dismiss-all {
+            background: #f0f0f0;
+            color: #666;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .btn-dismiss-all:hover {
+            background: #e0e0e0;
+        }
+
+        .reminders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .reminder-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+
+        .reminder-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transform: translateX(5px);
+        }
+
+        .reminder-card.critical {
+            border-left-color: #d32f2f;
+            background: #ffebee;
+        }
+
+        .reminder-card.high {
+            border-left-color: #f57c00;
+            background: #fff3e0;
+        }
+
+        .reminder-card.medium {
+            border-left-color: #fbc02d;
+            background: #fffde7;
+        }
+
+        .reminder-card.low {
+            border-left-color: #1976d2;
+            background: #e3f2fd;
+        }
+
+        .reminder-icon {
+            font-size: 2rem;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .reminder-content {
+            flex: 1;
+        }
+
+        .reminder-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 0.3rem;
+        }
+
+        .reminder-message {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .reminder-details {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .reminder-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-reminder-action {
+            padding: 0.5rem 1rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .btn-reminder-action:hover {
+            background: #764ba2;
+        }
+
+        .btn-reminder-dismiss {
+            padding: 0.5rem 1rem;
+            background: #f5f5f5;
+            color: #666;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.3s;
+        }
+
+        .btn-reminder-dismiss:hover {
+            background: #e0e0e0;
+        }
+
+        .no-reminders {
+            text-align: center;
+            padding: 2rem;
+            color: #999;
+        }
+
+        .no-reminders-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        /* Header */
+        .header {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-emoji {
+            font-size: 2rem;
+        }
+
+        .logo-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .welcome-text {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .btn-logout {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #764ba2;
+        }
+
+
+
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 30px rgba(0,0,0,0.15);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .card-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Section Titles */
+        .section-title {
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        /* Policies Section */
+        .policies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .policy-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .policy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .policy-type {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .policy-status {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-expired {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        /* policy details removed for brevity */
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 1rem;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #764ba2;
+        }
+
+        /* Claims Section */
+        .claims-list {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        /* claim items removed for brevity */
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-rejected {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            padding: 3rem;
+        }
+        /* loading animation removed for brevity */
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: white;
+        }
+        /* empty state details removed for brevity */
+
+        /* --- NEW CHAT WIDGET STYLES (Replaces .chat-button) --- */
+        #chatbot-avatar {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: transform 0.3s;
+            z-index: 1000;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            content: '💬'; /* Fallback */
+        }
+
+        #chatbot-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        /* Chat Window */
+        .chat-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .chat-container.active {
+            visibility: visible;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #667eea;
+            color: white;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        .chat-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .chat-header p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .chat-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+            transition: opacity 0.2s;
+        }
+
+        .chat-close:hover {
+            opacity: 0.7;
+        }
+
+        /* Messages */
+        .chat-messages {
+            flex-grow: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background: #f9f9f9;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 0.8rem;
+        }
+
+        .message-content {
+            padding: 0.6rem 1rem;
+            border-radius: 18px;
+            max-width: 80%;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.user .message-content {
+            background: #e1ffc7;
+            color: #333;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message.bot .message-content {
+            background: #fff;
+            color: #333;
+            border-bottom-left-radius: 2px;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 0.2rem;
+            text-align: right;
+        }
+
+        /* Input Area */
+        .chat-input-container {
+            border-top: 1px solid #eee;
+            padding: 0.8rem 1rem;
+            background: white;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input {
+            flex-grow: 1;
+            padding: 0.6rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 1rem;
+        }
+
+        .chat-send {
+            background: #667eea;
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .chat-send:hover {
+            background: #764ba2;
+        }
+
+        .chat-send svg {
+            width: 18px;
+            height: 18px;
+            fill: white;
+            transform: rotate(45deg) translate(2px, -2px); /* Makes the arrow point up */
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0.5rem 0;
+            color: #999;
+            margin-bottom: 0.8rem;
+        }
+
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background-color: #aaa;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 0.6s infinite alternate;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        /* keyframes removed for brevity */
+
+        /* Responsive adjustments */
+        @media (max-width: 500px) {
+            .chat-container {
+                width: 100%;
+                height: 100%;
+                bottom: 0;
+                right: 0;
+                border-radius: 0;
+            }
+            #chatbot-avatar {
+                /* Hide avatar when chat is open on mobile */
+                display: none;
+            }
+        }
+
+
+        /* Responsive (existing code) */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .policies-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <span class="logo-emoji">👌</span>
+            <span class="logo-title">Hakikisha Insurance</span>
+        </div>
+        <div class="user-info">
+            <span class="welcome-text">Welcome, <strong id="userName">Customer</strong></span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="reminders-banner" id="remindersBanner" style="display:none;">
+        <div class="container">
+            <div class="reminders-header">
+                <h3>🔔 Important Reminders</h3>
+                <button class="btn-dismiss-all" onclick="dismissAllReminders()">Dismiss All</button>
+            </div>
+            <div class="reminders-list" id="remindersList">
+                </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="dashboard">
+            <div class="card">
+                <div class="card-icon">📋</div>
+                <div class="card-title">Active Policies</div>
+                <div class="card-value" id="activePoliciesCount">-</div>
+                <div class="card-subtitle">Your current insurance coverage</div>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🔄</div>
+                <div class="card-title">Pending Claims</div>
+                <div class="card-value" id="pendingClaimsCount">-</div>
+                <div class="card-subtitle">Claims being processed</div>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">💰</div>
+                <div class="card-title">Total Coverage</div>
+                <div class="card-value" id="totalCoverage">-</div>
+                <div class="card-subtitle">Combined policy value</div>
+            </div>
+        </div>
+
+        <h2 class="section-title">My Policies</h2>
+        <div id="policiesContainer">
+            <div class="loading">Loading your policies</div>
+        </div>
+
+        <h2 class="section-title">My Claims</h2>
+        <div id="claimsContainer">
+            <div class="loading">Loading your claims</div>
+        </div>
+    </div>
+
+    <div id="chatbot-avatar" title="Chat with Hakikisha Assistant">💬</div>
+
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <h3>Hakikisha Bot</h3>
+                <p>Online • Ready to help</p>
+            </div>
+            <button class="chat-close" id="chatClose" aria-label="Close chat">×</button>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+        </div>
+
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+                <input 
+                    type="text" 
+                    class="chat-input" 
+                    id="chatInput" 
+                    placeholder="Type your message..."
+                    autocomplete="off"
+                />
+                <button class="chat-send" id="chatSend" aria-label="Send message">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Configuration
+        const API_BASE = window.location.origin + '/api';
+
+        // Check authentication
+        async function checkAuth() {
+            // ... (rest of checkAuth function) ...
+            try {
+                const response = await fetch(`${API_BASE}/check-session`, {
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (!data.authenticated) {
+                    window.location.href = '/static/login.html';
+                    return false;
+                }
+
+                // Set user name
+                if (data.user && data.user.name) {
+                    document.getElementById('userName').textContent = data.user.name;
+                }
+
+                return true;
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = '/static/login.html';
+                return false;
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboard() {
+            const isAuthenticated = await checkAuth();
+            if (!isAuthenticated) return;
+
+            // Load everything in parallel
+            await Promise.all([
+                loadReminders(),
+                loadPolicies(),
+                loadClaims()
+            ]);
+        }
+
+        // Load reminders
+        async function loadReminders() {
+            // ... (rest of loadReminders function) ...
+            try {
+                const response = await fetch(`${API_BASE}/reminders`, {
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.reminders && data.reminders.length > 0) {
+                    displayReminders(data.reminders);
+                } else {
+                    // Hide reminders banner if no reminders
+                    document.getElementById('remindersBanner').style.display = 'none';
+                }
+                console.log('🔔 Loading reminders...');
+            } catch (error) {
+                console.error('Load reminders error:', error);
+                document.getElementById('remindersBanner').style.display = 'none';
+            }
+        }
+
+        // Display reminders
+        function displayReminders(reminders) {
+            // ... (rest of displayReminders function) ...
+            const banner = document.getElementById('remindersBanner');
+            const container = document.getElementById('remindersList');
+
+            if (reminders.length === 0) {
+                banner.style.display = 'none';
+                return;
+            }
+
+            banner.style.display = 'block';
+
+            let html = '';
+
+            reminders.forEach(reminder => {
+                html += `
+                    <div class="reminder-card ${reminder.urgency}" data-id="${reminder.id}">
+                        <div class="reminder-icon">${reminder.icon}</div>
+                        <div class="reminder-content">
+                            <div class="reminder-title">${reminder.title}</div>
+                            <div class="reminder-message">${reminder.message}</div>
+                            <div class="reminder-details">
+                                ${reminder.details.policyNumber ? `<span>Policy: ${reminder.details.policyNumber}</span>` : ''}
+                                ${reminder.details.amount ? `<span>Amount: KES ${reminder.details.amount.toLocaleString()}</span>` : ''}
+                                ${reminder.details.dueDate ? `<span>Due: ${formatDate(reminder.details.dueDate)}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="reminder-actions">
+                            ${reminder.action ? `<button class="btn-reminder-action" onclick="handleReminderAction('${reminder.actionUrl}')">${reminder.action}</button>` : ''}
+                            <button class="btn-reminder-dismiss" onclick="dismissReminder('${reminder.id}')">✕</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Handle reminder action
+        function handleReminderAction(url) {
+            alert(`Action: ${url}\n\nThis would navigate to the payment/claims page.\n(Implementation pending)`);
+        }
+
+        // Dismiss single reminder
+        function dismissReminder(reminderId) {
+            // ... (rest of dismissReminder function) ...
+            const reminderCard = document.querySelector(`[data-id="${reminderId}"]`);
+            if (reminderCard) {
+                reminderCard.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    reminderCard.remove();
+                    
+                    // Check if any reminders left
+                    const remainingReminders = document.querySelectorAll('.reminder-card');
+                    if (remainingReminders.length === 0) {
+                        document.getElementById('remindersBanner').style.display = 'none';
+                    }
+                }, 300);
+            }
+        }
+
+        // Dismiss all reminders
+        function dismissAllReminders() {
+            if (confirm('Are you sure you want to dismiss all reminders?')) {
+                document.getElementById('remindersBanner').style.display = 'none';
+            }
+        }
+
+        // Add animation for dismiss
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideOut {
+                to {
+                    opacity: 0;
+                    transform: translateX(100px);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Load policies
+        async function loadPolicies() {
+            // ... (rest of loadPolicies function) ...
+            try {
+                const response = await fetch(`${API_BASE}/policies`, {
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.policies) {
+                    displayPolicies(data.policies);
+                } else {
+                    showEmptyState('policiesContainer', '📋', 'No policies found', 'You don\'t have any insurance policies yet.');
+                }
+            } catch (error) {
+                console.error('Load policies error:', error);
+                showEmptyState('policiesContainer', '❌', 'Error loading policies', 'Please refresh the page.');
+            }
+        }
+
+        // Display policies
+        function displayPolicies(policies) {
+            // ... (rest of displayPolicies function) ...
+            const container = document.getElementById('policiesContainer');
+
+            if (policies.length === 0) {
+                showEmptyState('policiesContainer', '📋', 'No policies found', 'You don\'t have any insurance policies yet.');
+                return;
+            }
+
+            // Update dashboard stats
+            const activePolicies = policies.filter(p => p.Status === 'Active');
+            document.getElementById('activePoliciesCount').textContent = activePolicies.length;
+
+            const totalCoverage = policies.reduce((sum, p) => sum + (p.CoverageAmount || 0), 0);
+            document.getElementById('totalCoverage').textContent = `KES ${totalCoverage.toLocaleString()}`;
+
+            // Display policies
+            const policiesGrid = document.createElement('div');
+            policiesGrid.className = 'policies-grid';
+
+            policies.forEach(policy => {
+                const policyCard = document.createElement('div');
+                policyCard.className = 'policy-card';
+
+                const statusClass = policy.Status === 'Active' ? 'status-active' : 'status-expired';
+
+                policyCard.innerHTML = `
+                    <div class="policy-header">
+                        <div class="policy-type">${policy.PolicyType || 'Insurance'}</div>
+                        <span class="policy-status ${statusClass}">${policy.Status || 'Unknown'}</span>
+                    </div>
+                    <div class="policy-details">
+                        <div class="policy-detail">
+                            <span class="detail-label">Policy Number:</span>
+                            <span class="detail-value">${policy.PolicyNumber}</span>
+                        </div>
+                        <div class="policy-detail">
+                            <span class="detail-label">Coverage:</span>
+                            <span class="detail-value">KES ${(policy.CoverageAmount || 0).toLocaleString()}</span>
+                        </div>
+                        <div class="policy-detail">
+                            <span class="detail-label">Premium:</span>
+                            <span class="detail-value">KES ${(policy.PremiumAmount || 0).toLocaleString()}/mo</span>
+                        </div>
+                        <div class="policy-detail">
+                            <span class="detail-label">Valid Until:</span>
+                            <span class="detail-value">${formatDate(policy.EndDate)}</span>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="viewPolicyDetails('${policy.PolicyNumber}')">
+                        View Details
+                    </button>
+                `;
+
+                policiesGrid.appendChild(policyCard);
+            });
+
+            container.innerHTML = '';
+            container.appendChild(policiesGrid);
+        }
+
+        // Load claims
+        async function loadClaims() {
+            // ... (rest of loadClaims function) ...
+            try {
+                const response = await fetch(`${API_BASE}/claims`, {
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.claims) {
+                    displayClaims(data.claims);
+                } else {
+                    showEmptyState('claimsContainer', '📄', 'No claims found', 'You haven\'t filed any claims yet.');
+                }
+            } catch (error) {
+                console.error('Load claims error:', error);
+                showEmptyState('claimsContainer', '❌', 'Error loading claims', 'Please refresh the page.');
+            }
+        }
+
+        // Display claims
+        function displayClaims(claims) {
+            // ... (rest of displayClaims function) ...
+            const container = document.getElementById('claimsContainer');
+
+            if (claims.length === 0) {
+                showEmptyState('claimsContainer', '📄', 'No claims found', 'You haven\'t filed any claims yet.');
+                return;
+            }
+
+            // Update pending claims count
+            const pendingClaims = claims.filter(c => c.Status === 'Pending' || c.Status === 'Under Review');
+            document.getElementById('pendingClaimsCount').textContent = pendingClaims.length;
+
+            // Display claims
+            const claimsList = document.createElement('div');
+            claimsList.className = 'claims-list';
+
+            claims.forEach(claim => {
+                const claimItem = document.createElement('div');
+                claimItem.className = 'claim-item';
+
+                let statusClass = 'status-pending';
+                if (claim.Status === 'Approved') statusClass = 'status-approved';
+                if (claim.Status === 'Rejected') statusClass = 'status-rejected';
+
+                claimItem.innerHTML = `
+                    <div class="claim-info">
+                        <div class="claim-number">Claim #${claim.ClaimNumber}</div>
+                        <div class="claim-date">Filed on ${formatDate(claim.SubmissionDate)} • Amount: KES ${(claim.Amount || 0).toLocaleString()}</div>
+                        <div class="claim-date">${claim.ClaimType || 'General'} • ${claim.Reason || 'No reason provided'}</div>
+                    </div>
+                    <div class="claim-status ${statusClass}">${claim.Status || 'Unknown'}</div>
+                `;
+
+                claimsList.appendChild(claimItem);
+            });
+
+            container.innerHTML = '';
+            container.appendChild(claimsList);
+        }
+
+        // Show empty state
+        function showEmptyState(containerId, icon, title, message) {
+            // ... (rest of showEmptyState function) ...
+            const container = document.getElementById(containerId);
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">${icon}</div>
+                    <div class="empty-state-text">${title}</div>
+                    <div class="card-subtitle">${message}</div>
+                </div>
+            `;
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            // ... (rest of formatDate function) ...
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        // View policy details
+        function viewPolicyDetails(policyNumber) {
+            alert(`Viewing details for policy ${policyNumber}\n\nThis would open a detailed modal or page with complete policy information.`);
+        }
+
+        // Logout
+        async function logout() {
+            // ... (rest of logout function) ...
+            try {
+                await fetch(`${API_BASE}/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+
+            sessionStorage.clear();
+            window.location.href = '/static/login.html';
+        }
+
+        /* ------------------------------------------------------------------ */
+        // NEW CHAT WIDGET JAVASCRIPT LOGIC
+        /* ------------------------------------------------------------------ */
+
+        class ChatWidget {
+            constructor() {
+                this.chatAvatar = document.getElementById('chatbot-avatar');
+                this.chatContainer = document.getElementById('chatContainer');
+                this.chatClose = document.getElementById('chatClose');
+                this.chatMessages = document.getElementById('chatMessages');
+                this.chatInput = document.getElementById('chatInput');
+                this.chatSend = document.getElementById('chatSend');
+                
+                // Generate unique session ID
+                this.sessionId = this.getOrCreateSessionId();
+                
+                // Check if user is authenticated
+                this.checkAuthStatus();
+                
+                this.init();
+            }
+
+            init() {
+                // Event listeners
+                this.chatAvatar.addEventListener('click', () => this.toggleChat());
+                this.chatClose.addEventListener('click', () => this.toggleChat());
+                this.chatSend.addEventListener('click', () => this.sendMessage());
+                this.chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendMessage();
+                });
+
+                // Send welcome message
+                this.addBotMessage("Hi! Welcome to Hakikisha Insurance. How can I help you today?");
+            }
+
+            getOrCreateSessionId() {
+                let sessionId = sessionStorage.getItem('hakikisha-session-id');
+                if (!sessionId) {
+                    sessionId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                    sessionStorage.setItem('hakikisha-session-id', sessionId);
+                }
+                return sessionId;
+            }
+
+            async checkAuthStatus() {
+                try {
+                    const response = await fetch('/api/check-session', {
+                        credentials: 'include'
+                    });
+                    const data = await response.json();
+                    
+                    if (data.authenticated) {
+                        console.log('User authenticated:', data.user);
+                        // You can update UI to show user is logged in
+                    }
+                } catch (error) {
+                    console.log('Not authenticated');
+                }
+            }
+
+            toggleChat() {
+                this.chatContainer.classList.toggle('active');
+                if (this.chatContainer.classList.contains('active')) {
+                    this.chatInput.focus();
+                }
+            }
+
+            async sendMessage() {
+                const message = this.chatInput.value.trim();
+                if (!message) return;
+
+                // Disable input while processing
+                this.chatInput.disabled = true;
+                this.chatSend.disabled = true;
+
+                // Add user message to chat
+                this.addUserMessage(message);
+                this.chatInput.value = '';
+
+                // Show typing indicator
+                this.showTypingIndicator();
+
+                try {
+                    // UPDATED: New endpoint for Flask backend
+                    const response = await fetch('/api/chat', { 
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include', 
+                        body: JSON.stringify({
+                            message: message,
+                            sessionId: this.sessionId
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    // Hide typing indicator
+                    this.hideTypingIndicator();
+
+                    // Add bot response
+                    if (data.reply) {
+                        this.addBotMessage(data.reply);
+                    } else if (data.error) {
+                        this.addBotMessage("Sorry, I encountered an error. Please try again.");
+                    }
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                    this.hideTypingIndicator();
+                    this.addBotMessage("Sorry, I'm having trouble connecting. Please try again later.");
+                } finally {
+                    // Re-enable input
+                    this.chatInput.disabled = false;
+                    this.chatSend.disabled = false;
+                    this.chatInput.focus();
+                }
+            }
+
+            addUserMessage(text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message user';
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        ${this.escapeHtml(text)}
+                        <div class="message-time">${this.getCurrentTime()}</div>
+                    </div>
+                `;
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            addBotMessage(text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message bot';
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        ${this.escapeHtml(text)}
+                        <div class="message-time">${this.getCurrentTime()}</div>
+                    </div>
+                `;
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing-indicator active';
+                typingDiv.id = 'typingIndicator';
+                typingDiv.innerHTML = '<span></span><span></span><span></span>';
+                this.chatMessages.appendChild(typingDiv);
+                this.scrollToBottom();
+            }
+
+            hideTypingIndicator() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+
+            scrollToBottom() {
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+
+            getCurrentTime() {
+                const now = new Date();
+                return now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+
+        // Initialize chat widget when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboard(); // Load the dashboard data first
+            new ChatWidget(); // Initialize the chatbot widget
+        });
+        
+        // Note: The example handling a button click part was removed 
+        // as the button/input elements it referenced didn't exist in the current page structure.
+        /*
+        document.getElementById("askButton").addEventListener("click", () => {
+            const question = document.getElementById("question").value;
+            askFAQ(question);
+        });
+        */
+        
+    </script>
+</body>
+</html>

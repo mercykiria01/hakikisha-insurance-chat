@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get a Quote - Hakikisha Insurance</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .header {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .logo-emoji {
+            font-size: 2rem;
+        }
+
+        .logo-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .quote-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .quote-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .quote-header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .quote-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1;
+            background: white;
+            padding: 0 1rem;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .progress-step.active .step-number {
+            background: #667eea;
+            color: white;
+        }
+
+        .progress-step.completed .step-number {
+            background: #4caf50;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .required {
+            color: #d32f2f;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .policy-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .policy-type-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .policy-type-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .policy-type-card.selected {
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .policy-type-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .policy-type-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.3rem;
+        }
+
+        .policy-type-desc {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #f44336;
+        }
+
+        .quote-summary {
+            background: #f5f7ff;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .summary-label {
+            color: #666;
+        }
+
+        .summary-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .success-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+        }
+
+        .success-message h2 {
+            color: #4caf50;
+            margin-bottom: 1rem;
+        }
+
+        .success-message p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .policy-type-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quote-header h1 {
+                font-size: 2rem;
+            }
+
+            .quote-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo" onclick="window.location.href='/'">
+            <span class="logo-emoji">👌</span>
+            <span class="logo-title">Hakikisha Insurance</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="quote-card">
+            <!-- Header -->
+            <div class="quote-header">
+                <h1>Get Your Free Quote</h1>
+                <p>Answer a few questions to get an instant insurance quote</p>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-bar">
+                <div class="progress-step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Policy Type</div>
+                </div>
+                <div class="progress-step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Details</div>
+                </div>
+                <div class="progress-step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Contact Info</div>
+                </div>
+                <div class="progress-step" data-step="4">
+                    <div class="step-number">4</div>
+                    <div class="step-label">Review</div>
+                </div>
+            </div>
+
+            <!-- Alert Messages -->
+            <div id="alertMessage" class="alert"></div>
+
+            <!-- Form -->
+            <form id="quoteForm">
+                <!-- Step 1: Policy Type Selection -->
+                <div class="form-section active" data-section="1">
+                    <h2 class="section-title">What type of insurance do you need?</h2>
+                    
+                    <div class="policy-type-grid">
+                        <div class="policy-type-card" data-policy="Auto">
+                            <div class="policy-type-icon">🚗</div>
+                            <div class="policy-type-name">Auto Insurance</div>
+                            <div class="policy-type-desc">Protect your vehicle</div>
+                        </div>
+                        
+                        <div class="policy-type-card" data-policy="Home">
+                            <div class="policy-type-icon">🏠</div>
+                            <div class="policy-type-name">Home Insurance</div>
+                            <div class="policy-type-desc">Secure your property</div>
+                        </div>
+                        
+                        <div class="policy-type-card" data-policy="Life">
+                            <div class="policy-type-icon">❤️</div>
+                            <div class="policy-type-name">Life Insurance</div>
+                            <div class="policy-type-desc">Protect your family</div>
+                        </div>
+                        
+                        <div class="policy-type-card" data-policy="Health">
+                            <div class="policy-type-icon">🏥</div>
+                            <div class="policy-type-name">Health Insurance</div>
+                            <div class="policy-type-desc">Medical coverage</div>
+                        </div>
+                        
+                        <div class="policy-type-card" data-policy="Business">
+                            <div class="policy-type-icon">💼</div>
+                            <div class="policy-type-name">Business Insurance</div>
+                            <div class="policy-type-desc">Commercial protection</div>
+                        </div>
+                        
+                        <div class="policy-type-card" data-policy="Travel">
+                            <div class="policy-type-icon">✈️</div>
+                            <div class="policy-type-name">Travel Insurance</div>
+                            <div class="policy-type-desc">Trip protection</div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="policyType" name="policyType" required>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='/'">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()" id="step1Next" disabled>Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Insurance Details -->
+                <div class="form-section" data-section="2">
+                    <h2 class="section-title">Insurance Details</h2>
+
+                    <div class="form-group">
+                        <label for="coverageAmount">Desired Coverage Amount (KES) <span class="required">*</span></label>
+                        <input type="number" id="coverageAmount" name="coverageAmount" min="100000" step="50000" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="paymentFrequency">Payment Frequency <span class="required">*</span></label>
+                            <select id="paymentFrequency" name="paymentFrequency" required>
+                                <option value="">Select frequency</option>
+                                <option value="Monthly">Monthly</option>
+                                <option value="Quarterly">Quarterly</option>
+                                <option value="Annually">Annually</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="startDate">Preferred Start Date <span class="required">*</span></label>
+                            <input type="date" id="startDate" name="startDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="additionalInfo">Additional Information (Optional)</label>
+                        <textarea id="additionalInfo" name="additionalInfo" placeholder="Any specific requirements or questions?"></textarea>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Contact Information -->
+                <div class="form-section" data-section="3">
+                    <h2 class="section-title">Your Contact Information</h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name <span class="required">*</span></label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastName">Last Name <span class="required">*</span></label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number <span class="required">*</span></label>
+                        <input type="tel" id="phone" name="phone" placeholder="+254712345678" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="county">County <span class="required">*</span></label>
+                        <select id="county" name="county" required>
+                            <option value="">Select county</option>
+                            <option value="Nairobi">Nairobi</option>
+                            <option value="Mombasa">Mombasa</option>
+                            <option value="Kiambu">Kiambu</option>
+                            <option value="Nakuru">Nakuru</option>
+                            <option value="Kisumu">Kisumu</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">Review</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Review & Submit -->
+                <div class="form-section" data-section="4">
+                    <h2 class="section-title">Review Your Quote Request</h2>
+
+                    <div class="quote-summary" id="quoteSummary">
+                        <!-- Summary will be populated here -->
+                    </div>
+
+                    <div class="loading" id="loadingIndicator">
+                        <div class="spinner"></div>
+                        <p>Calculating your quote...</p>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Get My Quote</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Success Message -->
+            <div class="success-message" id="successMessage">
+                <div class="success-icon">✅</div>
+                <h2>Quote Request Submitted!</h2>
+                <p>Thank you for choosing Hakikisha Insurance. Our team will review your request and contact you within 24 hours with your personalized quote.</p>
+                <p><strong>Reference Number:</strong> <span id="quoteReference"></span></p>
+                <button class="btn btn-primary" onclick="window.location.href='/'">Return to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin + '/api';
+        let currentStep = 1;
+        let selectedPolicyType = null;
+
+        // Set minimum date to today
+        document.addEventListener('DOMContentLoaded', () => {
+            const startDateInput = document.getElementById('startDate');
+            const today = new Date().toISOString().split('T')[0];
+            startDateInput.setAttribute('min', today);
+            startDateInput.value = today;
+        });
+
+        // Policy type selection
+        document.querySelectorAll('.policy-type-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove selection from all cards
+                document.querySelectorAll('.policy-type-card').forEach(c => c.classList.remove('selected'));
+                
+                // Select this card
+                this.classList.add('selected');
+                selectedPolicyType = this.getAttribute('data-policy');
+                document.getElementById('policyType').value = selectedPolicyType;
+                
+                // Enable next button
+                document.getElementById('step1Next').disabled = false;
+            });
+        });
+
+        // Navigation functions
+        function nextStep() {
+            const currentSection = document.querySelector(`.form-section[data-section="${currentStep}"]`);
+            
+            // Validate current step
+            const inputs = currentSection.querySelectorAll('input[required], select[required], textarea[required]');
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                if (!input.value) {
+                    isValid = false;
+                    input.style.borderColor = '#d32f2f';
+                } else {
+                    input.style.borderColor = '#e0e0e0';
+                }
+            });
+
+            if (!isValid) {
+                showAlert('Please fill in all required fields', 'error');
+                return;
+            }
+
+            // Hide current section
+            currentSection.classList.remove('active');
+            
+            // Update progress
+            document.querySelector(`.progress-step[data-step="${currentStep}"]`).classList.add('completed');
+            currentStep++;
+            document.querySelector(`.progress-step[data-step="${currentStep}"]`).classList.add('active');
+            
+            // Show next section
+            const nextSection = document.querySelector(`.form-section[data-section="${currentStep}"]`);
+            nextSection.classList.add('active');
+
+            // If on review step, populate summary
+            if (currentStep === 4) {
+                populateSummary();
+            }
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function prevStep() {
+            // Hide current section
+            document.querySelector(`.form-section[data-section="${currentStep}"]`).classList.remove('active');
+            
+            // Update progress
+            document.querySelector(`.progress-step[data-step="${currentStep}"]`).classList.remove('active');
+            currentStep--;
+            document.querySelector(`.progress-step[data-step="${currentStep}"]`).classList.remove('completed');
+            
+            // Show previous section
+            document.querySelector(`.form-section[data-section="${currentStep}"]`).classList.add('active');
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function populateSummary() {
+            const formData = new FormData(document.getElementById('quoteForm'));
+            const data = Object.fromEntries(formData.entries());
+
+            const summary = `
+                <div class="summary-item">
+                    <span class="summary-label">Policy Type:</span>
+                    <span class="summary-value">${data.policyType}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Coverage Amount:</span>
+                    <span class="summary-value">KES ${parseInt(data.coverageAmount).toLocaleString()}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Payment Frequency:</span>
+                    <span class="summary-value">${data.paymentFrequency}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Start Date:</span>
+                    <span class="summary-value">${formatDate(data.startDate)}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Full Name:</span>
+                    <span class="summary-value">${data.firstName} ${data.lastName}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Email:</span>
+                    <span class="summary-value">${data.email}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Phone:</span>
+                    <span class="summary-value">${data.phone}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">County:</span>
+                    <span class="summary-value">${data.county}</span>
+                </div>
+            `;
+
+            document.getElementById('quoteSummary').innerHTML = summary;
+        }
+
+        // Form submission
+        document.getElementById('quoteForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const summaryDiv = document.getElementById('quoteSummary');
+
+            // Disable submit button and show loading
+            submitBtn.disabled = true;
+            loadingIndicator.classList.add('show');
+            summaryDiv.style.opacity = '0.5';
+
+            try {
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+
+                const response = await fetch(`${API_BASE}/quote-request`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Hide form and show success message
+                    document.getElementById('quoteForm').style.display = 'none';
+                    document.querySelector('.progress-bar').style.display = 'none';
+                    
+                    const successMessage = document.getElementById('successMessage');
+                    document.getElementById('quoteReference').textContent = result.quoteNumber;
+                    successMessage.classList.add('show');
+                } else {
+                    showAlert(result.error || 'Failed to submit quote request', 'error');
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Quote submission error:', error);
+                showAlert('An error occurred. Please try again.', 'error');
+                submitBtn.disabled = false;
+            } finally {
+                loadingIndicator.classList.remove('show');
+                summaryDiv.style.opacity = '1';
+            }
+        });
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('alertMessage');
+            alert.textContent = message;
+            alert.className = `alert alert-${type} show`;
+            
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 5000);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+    </script>
+</body>
+</html>

@@ -1,13 +1,21 @@
-flask
-flask-cors
-langchain
-langchain-community
-langchain-openai
-faiss-cpu
-openai
-beautifulsoup4
-lxml
-gunicorn
-dotenv
-openai
-pyodbc
+# Web Framework
+Flask==3.0.0
+Flask-Session==0.5.0
+Flask-CORS==4.0.0
+gunicorn==21.2.0
+
+# Azure Services
+openai==1.12.0
+httpx==0.27.0 
+# Database
+pyodbc==5.0.1
+
+# Security & Environment
+python-dotenv==1.0.0
+cryptography==41.0.7
+
+# Utilities
+python-dateutil==2.8.2
+
+# Email (for OTP)
+secure-smtplib==0.1.1

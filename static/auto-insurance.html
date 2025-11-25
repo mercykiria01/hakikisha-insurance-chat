@@ -76,7 +76,7 @@
             </div>
             <nav>
                 <ul class="nav-menu">
-                    <li><a href="index.html#home">Home</a></li>
+                    <li><a href="static/index.html">Home</a></li>
                     <li><a href="index.html#services">Insurance</a></li>
                     <li><a href="index.html#claims">Claims</a></li>
                     <li><a href="index.html#about">About</a></li>
@@ -118,5 +118,36 @@
             <!-- You can add more details about the plans here -->
         </div>
     </main>
+    <div id="chatbot-avatar" title="Chat with Hakikisha Assistant"></div>
+
+<div class="chat-container" id="chatContainer">
+    <div class="chat-header">
+        <div class="chat-header-info">
+            <h3>Hakikisha Bot</h3>
+            <p>Online • Ready to help</p>
+        </div>
+        <button class="chat-close" id="chatClose" aria-label="Close chat">×</button>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+    </div>
+
+    <div class="chat-input-container">
+        <div class="chat-input-wrapper">
+            <input 
+                type="text" 
+                class="chat-input" 
+                id="chatInput" 
+                placeholder="Type your message..."
+                autocomplete="off"
+            />
+            <button class="chat-send" id="chatSend" aria-label="Send message">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
